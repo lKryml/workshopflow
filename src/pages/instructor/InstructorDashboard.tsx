@@ -16,7 +16,7 @@ export function InstructorDashboard({
   const {
     session: liveSession,
     tasks, students, completions, helpQueue, resources, isConnected,
-    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession,
+    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession, kickStudent,
   } = useInstructorSession(session.id, initialTasks)
 
   const [broadcastMsg, setBroadcastMsg] = useState('')
@@ -168,7 +168,12 @@ export function InstructorDashboard({
             ) : (
               <div className="p-5 grid grid-cols-3 gap-3 sm:grid-cols-4 md:grid-cols-6">
                 {sortedStudents.map(s => (
-                  <div key={s.id} className="flex flex-col items-center gap-1.5 p-3 bg-neutral-900/50 border border-neutral-800 rounded-xl">
+                  <div key={s.id} className="relative flex flex-col items-center gap-1.5 p-3 bg-neutral-900/50 border border-neutral-800 rounded-xl">
+                    <button
+                      onClick={() => kickStudent(s.id)}
+                      className="absolute top-1.5 right-1.5 w-5 h-5 flex items-center justify-center rounded text-neutral-700 hover:text-red-400 hover:bg-red-500/10 transition-colors text-xs"
+                      title="Remove student"
+                    >✕</button>
                     <div className="text-3xl">{s.avatar}</div>
                     <div className="text-xs font-semibold text-neutral-300 truncate w-full text-center">{s.name}</div>
                   </div>

@@ -23,6 +23,7 @@ export type InstructorSessionActions = {
   removeResource: (resourceId: string) => Promise<void>
   exportCSV: () => void
   startSession: () => Promise<void>
+  kickStudent: (studentId: string) => Promise<void>
 }
 
 export function useInstructorSession(
@@ -71,6 +72,9 @@ export function useInstructorSession(
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'students', filter: `session_id=eq.${sessionId}` },
         ({ new: s }) => setStudents(prev => prev.map(x => x.id === s.id ? s as Student : x)))
+      .on('postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'students', filter: `session_id=eq.${sessionId}` },
+        ({ old: s }) => setStudents(prev => prev.filter(x => x.id !== (s as Student).id)))
       .on('postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'completions', filter: `session_id=eq.${sessionId}` },
         ({ new: c }) => setCompletions(prev => [...prev.filter(x => x.id !== c.id), c as Completion]))
@@ -154,9 +158,14 @@ export function useInstructorSession(
     await supabase.from('sessions').update({ is_active: true }).eq('id', sessionId)
   }, [sessionId])
 
+  const kickStudent = useCallback(async (studentId: string) => {
+    setStudents(prev => prev.filter(s => s.id !== studentId))
+    await supabase.from('students').delete().eq('id', studentId)
+  }, [])
+
   return {
     session, tasks, students, completions, helpQueue, resources, isConnected,
-    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession,
+    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession, kickStudent,
   }
 }
 

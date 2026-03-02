@@ -23,25 +23,41 @@ export default function App() {
         if (authSession) setRoute('instructor-home')
       })
       const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, authSession) => {
-        if (authSession) setRoute('instructor-home')
+        if (authSession) setRoute(current => current === 'instructor-auth' ? 'instructor-home' : current)
       })
       return () => subscription.unsubscribe()
     } else {
-      // Restore student session from sessionStorage so refresh doesn't lose state
-      try {
-        const stored = sessionStorage.getItem('workshopflow_student')
-        if (stored) {
-          const { studentData, sessionData, tasksData, waitingRoom } = JSON.parse(stored)
-          if (studentData && sessionData && tasksData) {
-            setStudent(studentData)
-            setSession(sessionData)
-            setTasks(tasksData)
-            setRoute(waitingRoom ? 'student-waiting' : 'student-view')
-          }
-        }
-      } catch {
-        sessionStorage.removeItem('workshopflow_student')
-      }
+      // Restore student session via Supabase auth — persists across tab closes
+      supabase.auth.getSession().then(async ({ data: { session: authSession } }) => {
+        if (!authSession?.user?.email) return
+
+        const { data: studentRow } = await supabase
+          .from('students')
+          .select('*')
+          .eq('email', authSession.user.email)
+          .order('created_at', { ascending: false })
+          .limit(1)
+          .single()
+
+        if (!studentRow) return
+
+        const { data: sess } = await supabase
+          .from('sessions')
+          .select('*')
+          .eq('id', studentRow.session_id)
+          .single()
+
+        const { data: tasksData } = await supabase
+          .from('tasks')
+          .select('*')
+          .eq('session_id', studentRow.session_id)
+          .order('task_order')
+
+        setStudent(studentRow)
+        setSession(sess)
+        setTasks(tasksData || [])
+        setRoute(sess?.is_active ? 'student-view' : 'student-waiting')
+      })
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -49,24 +65,18 @@ export default function App() {
     setStudent(s)
     setSession(sess)
     setTasks(t)
-    const inWaiting = !sess.is_active
-    try {
-      sessionStorage.setItem('workshopflow_student', JSON.stringify({
-        studentData: s, sessionData: sess, tasksData: t, waitingRoom: inWaiting,
-      }))
-    } catch { /* storage unavailable */ }
-    setRoute(inWaiting ? 'student-waiting' : 'student-view')
+    setRoute(!sess.is_active ? 'student-waiting' : 'student-view')
   }
 
   const handleSessionStart = () => {
-    try {
-      const stored = sessionStorage.getItem('workshopflow_student')
-      if (stored) {
-        const parsed = JSON.parse(stored)
-        sessionStorage.setItem('workshopflow_student', JSON.stringify({ ...parsed, waitingRoom: false }))
-      }
-    } catch { /* ignore */ }
     setRoute('student-view')
+  }
+
+  const handleStudentKicked = () => {
+    setStudent(null)
+    setSession(null)
+    setTasks([])
+    setRoute('student-join')
   }
 
   const handleSessionReady = (sess: Session, t: Task[]) => {
@@ -91,7 +101,7 @@ export default function App() {
   }
 
   // ── Student flow ──
-  if (route === 'student-waiting' && student && session) return <WaitingRoom student={student} session={session} onSessionStart={handleSessionStart} />
+  if (route === 'student-waiting' && student && session) return <WaitingRoom student={student} session={session} onSessionStart={handleSessionStart} onKicked={handleStudentKicked} />
   if (route === 'student-view' && student && session) return <StudentView student={student} session={session} initialTasks={tasks} />
   return <StudentJoin onJoined={handleStudentJoined} />
 }

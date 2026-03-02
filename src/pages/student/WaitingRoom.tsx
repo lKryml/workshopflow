@@ -6,10 +6,12 @@ export function WaitingRoom({
   student,
   session,
   onSessionStart,
+  onKicked,
 }: {
   student: Student
   session: Session
   onSessionStart: () => void
+  onKicked: () => void
 }) {
   const [studentCount, setStudentCount] = useState(0)
   const [waitingStudents, setWaitingStudents] = useState<Student[]>([])
@@ -31,6 +33,17 @@ export function WaitingRoom({
         ({ new: s }) => {
           setWaitingStudents(prev => [...prev.filter(x => x.id !== (s as Student).id), s as Student])
           setStudentCount(prev => prev + 1)
+        })
+      .on('postgres_changes',
+        { event: 'DELETE', schema: 'public', table: 'students', filter: `session_id=eq.${session.id}` },
+        async ({ old: removed }) => {
+          const removedId = (removed as { id?: string }).id
+          setWaitingStudents(prev => prev.filter(x => x.id !== removedId))
+          setStudentCount(prev => Math.max(0, prev - 1))
+          if (removedId === student.id) {
+            await supabase.auth.signOut()
+            onKicked()
+          }
         })
       .on('postgres_changes',
         { event: 'UPDATE', schema: 'public', table: 'sessions', filter: `id=eq.${session.id}` },
