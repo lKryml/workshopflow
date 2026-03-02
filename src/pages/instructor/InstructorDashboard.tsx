@@ -1,10 +1,30 @@
 import { useCallback, useState } from 'react'
 import { ConnectionStatus } from '../../components/ConnectionStatus'
 import { getStudentTaskStatus, useInstructorSession } from '../../hooks/useInstructorSession'
-import { getLevel } from '../../lib/xp'
 import { copyToClipboard } from '../../lib/utils'
+import { getLevel } from '../../lib/xp'
 import { ResourceModal } from './ResourceModal'
-import type { Resource, Session, Task } from '../../types'
+import type { Resource, Session, SessionField, Task } from '../../types'
+
+function resolveFieldLink(field: SessionField, value: string): { href: string; display: string } | null {
+  const v = value.trim()
+  if (!v) return null
+  if (field.field_type === 'url') {
+    const href = /^https?:\/\//.test(v) ? v : `https://${v}`
+    return { href, display: v.replace(/^https?:\/\//, '').replace(/\/$/, '') }
+  }
+  const isGitHub = /github/i.test(field.field_key) || /github/i.test(field.field_label)
+  if (isGitHub) {
+    const username = v
+      .replace(/^https?:\/\/github\.com\//i, '')
+      .replace(/^@/, '')
+      .replace(/[/?#].*$/, '')
+      .trim()
+    if (!username) return null
+    return { href: `https://github.com/${username}`, display: `@${username}` }
+  }
+  return null
+}
 
 export function InstructorDashboard({
   session,
@@ -15,7 +35,7 @@ export function InstructorDashboard({
 }) {
   const {
     session: liveSession,
-    tasks, students, completions, helpQueue, resources, isConnected,
+    tasks, students, completions, helpQueue, resources, sessionFields, isConnected,
     toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession, kickStudent,
   } = useInstructorSession(session.id, initialTasks)
 
@@ -49,8 +69,10 @@ export function InstructorDashboard({
     ? completions.filter(c => c.task_id === currentTask.id && !c.is_stuck).length
     : 0
   const completionPct = students.length > 0 ? Math.round((currentDone / students.length) * 100) : 0
-  const avgXP = students.length > 0
-    ? Math.round(students.reduce((a, s) => a + s.total_xp, 0) / students.length)
+  const avgDone = students.length > 0
+    ? Math.round(students.reduce((a, s) =>
+        a + completions.filter(c => c.student_id === s.id && !c.is_stuck).length, 0
+      ) / students.length * 10) / 10
     : 0
 
   const isWaiting = liveSession ? !liveSession.is_active : !session.is_active
@@ -119,7 +141,7 @@ export function InstructorDashboard({
               { label: 'Step Done', value: `${currentDone}/${students.length}`, color: '#22c55e', sub: 'Step Done' },
               { label: 'Need Help', value: helpQueue.length, color: '#ef4444', sub: 'Need Help', urgent: helpQueue.length > 0 },
               { label: 'Progress', value: `${completionPct}%`, color: '#f97316', sub: 'Progress' },
-              { label: 'Avg XP', value: avgXP.toLocaleString('en'), color: '#f59e0b', sub: 'Avg XP' },
+              { label: 'Avg Steps', value: `${avgDone}`, color: '#f59e0b', sub: 'Avg Steps' },
             ].map((s, i) => (
               <div
                 key={i}
@@ -206,7 +228,6 @@ export function InstructorDashboard({
                       {stuckCount > 0 && (
                         <span className="font-mono text-[10px] text-red-500 flex-shrink-0">{stuckCount}!</span>
                       )}
-                      <span className="font-mono text-[10px] text-orange-500/60 flex-shrink-0">{task.xp_reward}</span>
                       {/* Toggle */}
                       <button
                         onClick={() => toggleLock(task)}
@@ -253,9 +274,6 @@ export function InstructorDashboard({
                           {level.icon} {level.name}
                         </div>
                       </div>
-                      <span className="font-mono text-[11px] font-bold text-amber-400 flex-shrink-0">
-                        ⚡{s.total_xp}
-                      </span>
                     </div>
                   )
                 })}
@@ -321,9 +339,6 @@ export function InstructorDashboard({
                           {req.taskTitle}
                         </div>
                       </div>
-                      <span className="font-mono text-[11px] font-bold text-amber-500/70 flex-shrink-0">
-                        ⚡{req.student.total_xp}
-                      </span>
                       <button
                         onClick={() => pingStudent(req.student.id)}
                         className="flex-shrink-0 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"
@@ -377,9 +392,6 @@ export function InstructorDashboard({
                               >
                                 {task.title}
                               </div>
-                              <div className="text-[9px] font-mono mt-0.5" style={{ color: !task.is_locked ? '#f97316' : '#2a2a2a' }}>
-                                {task.xp_reward} XP
-                              </div>
                             </th>
                           ))}
                         </tr>
@@ -402,8 +414,36 @@ export function InstructorDashboard({
                                     <div className="text-sm font-semibold text-neutral-200 truncate">{student.name}</div>
                                     <div className="text-[10px] flex items-center gap-1" style={{ color: level.color }}>
                                       {level.icon} {level.name}
-                                      <span className="font-mono text-amber-500/60 ml-1">⚡{student.total_xp}</span>
                                     </div>
+                                    {sessionFields.length > 0 && (
+                                      <div className="flex flex-wrap gap-1 mt-1">
+                                        {sessionFields.map(field => {
+                                          const value = student.custom_fields?.[field.field_key]
+                                          if (!value?.trim()) return null
+                                          const link = resolveFieldLink(field, value)
+                                          return link ? (
+                                            <a
+                                              key={field.field_key}
+                                              href={link.href}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="text-[9px] font-mono text-orange-400/80 hover:text-orange-400 bg-orange-500/10 hover:bg-orange-500/15 px-1.5 py-0.5 rounded transition-colors truncate max-w-[120px]"
+                                              title={`${field.field_label}: ${value}`}
+                                            >
+                                              {link.display}
+                                            </a>
+                                          ) : (
+                                            <span
+                                              key={field.field_key}
+                                              className="text-[9px] font-mono text-neutral-500 bg-neutral-900 px-1.5 py-0.5 rounded truncate max-w-[120px]"
+                                              title={`${field.field_label}: ${value}`}
+                                            >
+                                              {value}
+                                            </span>
+                                          )
+                                        })}
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </td>

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../supabase'
 import { getLevel } from '../lib/xp'
 import { exportStudentsToCSV } from '../lib/utils'
-import type { Completion, HelpRequest, Resource, Session, Student, Task } from '../types'
+import type { Completion, HelpRequest, Resource, Session, SessionField, Student, Task } from '../types'
 
 export type InstructorSessionState = {
   session: Session | null
@@ -11,6 +11,7 @@ export type InstructorSessionState = {
   completions: Completion[]
   helpQueue: HelpRequest[]
   resources: Resource[]
+  sessionFields: SessionField[]
   isConnected: boolean
 }
 
@@ -35,6 +36,7 @@ export function useInstructorSession(
   const [students, setStudents] = useState<Student[]>([])
   const [completions, setCompletions] = useState<Completion[]>([])
   const [resources, setResources] = useState<Resource[]>([])
+  const [sessionFields, setSessionFields] = useState<SessionField[]>([])
   const [isConnected, setIsConnected] = useState(true)
 
   const broadcastChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
@@ -63,6 +65,9 @@ export function useInstructorSession(
 
     supabase.from('resources').select('*').eq('session_id', sessionId).order('resource_order')
       .then(({ data }) => data && setResources(data))
+
+    supabase.from('session_fields').select('*').eq('session_id', sessionId).order('field_order')
+      .then(({ data }) => data && setSessionFields(data))
 
     // Realtime subscriptions
     const ch = supabase.channel(`instructor-${sessionId}`)
@@ -164,7 +169,7 @@ export function useInstructorSession(
   }, [])
 
   return {
-    session, tasks, students, completions, helpQueue, resources, isConnected,
+    session, tasks, students, completions, helpQueue, resources, sessionFields, isConnected,
     toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession, kickStudent,
   }
 }
