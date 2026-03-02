@@ -12,6 +12,7 @@ export type StudentSessionState = {
   resources: Resource[]
   isConnected: boolean
   broadcastMessage: string | null
+  pingMessage: string | null
 }
 
 export type StudentSessionActions = {
@@ -19,6 +20,7 @@ export type StudentSessionActions = {
   markStuck: (taskId: string, note: string) => Promise<void>
   unmarkStuck: (taskId: string) => Promise<void>
   dismissBroadcast: () => void
+  dismissPing: () => void
 }
 
 export function useStudentSession(
@@ -33,8 +35,10 @@ export function useStudentSession(
   const [resources, setResources] = useState<Resource[]>([])
   const [isConnected, setIsConnected] = useState(true)
   const [broadcastMessage, setBroadcastMessage] = useState<string | null>(null)
+  const [pingMessage, setPingMessage] = useState<string | null>(null)
 
   const broadcastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const pingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     // Initial data load
@@ -115,12 +119,20 @@ export function useStudentSession(
         if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current)
         broadcastTimerRef.current = setTimeout(() => setBroadcastMessage(null), 8000)
       })
+      .on('broadcast', { event: 'student_ping' }, ({ payload }) => {
+        if (payload.student_id === studentId) {
+          setPingMessage((payload.message as string | undefined) ?? 'مدرسك في الطريق ✓')
+          if (pingTimerRef.current) clearTimeout(pingTimerRef.current)
+          pingTimerRef.current = setTimeout(() => setPingMessage(null), 5000)
+        }
+      })
       .subscribe()
 
     return () => {
       supabase.removeChannel(ch)
       supabase.removeChannel(bch)
       if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current)
+      if (pingTimerRef.current) clearTimeout(pingTimerRef.current)
     }
   }, [studentId, sessionId])
 
@@ -202,8 +214,13 @@ export function useStudentSession(
     if (broadcastTimerRef.current) clearTimeout(broadcastTimerRef.current)
   }, [])
 
+  const dismissPing = useCallback(() => {
+    setPingMessage(null)
+    if (pingTimerRef.current) clearTimeout(pingTimerRef.current)
+  }, [])
+
   return {
-    session, student, tasks, completions, leaderboard, resources, isConnected, broadcastMessage,
-    completeTask, markStuck, unmarkStuck, dismissBroadcast,
+    session, student, tasks, completions, leaderboard, resources, isConnected, broadcastMessage, pingMessage,
+    completeTask, markStuck, unmarkStuck, dismissBroadcast, dismissPing,
   }
 }

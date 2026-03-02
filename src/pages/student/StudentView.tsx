@@ -58,8 +58,8 @@ export function StudentView({
   initialTasks: Task[]
 }) {
   const {
-    student, tasks, completions, leaderboard, resources, isConnected, broadcastMessage,
-    completeTask, markStuck, unmarkStuck, dismissBroadcast,
+    student, tasks, completions, leaderboard, resources, isConnected, broadcastMessage, pingMessage,
+    completeTask, markStuck, unmarkStuck, dismissBroadcast, dismissPing,
   } = useStudentSession(initialStudent.id, session.id)
 
   const currentStudent = student ?? initialStudent
@@ -119,6 +119,20 @@ export function StudentView({
       <XPFloat xp={lastXP} show={showXP} />
       <BroadcastBanner message={broadcastMessage} onDismiss={dismissBroadcast} />
       <LevelUpToast level={levelUpLevel} onDismiss={() => setLevelUpLevel(null)} />
+
+      {/* Instructor ping notification — green, bottom-right, auto-dismisses */}
+      {pingMessage && (
+        <div className="fixed bottom-16 left-4 z-[9998] bg-green-600/95 backdrop-blur-sm border border-green-500/40 text-white px-4 py-3 rounded-xl shadow-[0_4px_20px_rgba(34,197,94,0.3)] flex items-center gap-3 broadcast-in">
+          <span className="text-lg flex-shrink-0">🙋</span>
+          <span className="text-sm font-bold">{pingMessage}</span>
+          <button
+            onClick={dismissPing}
+            className="w-6 h-6 flex items-center justify-center rounded text-green-200 hover:text-white hover:bg-green-500/30 transition-colors text-base flex-shrink-0"
+          >
+            ×
+          </button>
+        </div>
+      )}
 
       {/* Stuck Modal */}
       {stuckTaskId && (
@@ -184,8 +198,15 @@ export function StudentView({
                   </span>
                 )}
               </div>
-              <div className="text-sm font-semibold mb-3" style={{ color: level.color }}>
-                {level.icon} {level.name}
+              <div className="flex items-center gap-2 flex-wrap mb-3">
+                <div className="text-sm font-semibold" style={{ color: level.color }}>
+                  {level.icon} {level.name}
+                </div>
+                {currentStudent.streak >= 2 && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded bg-orange-500/10 border border-orange-500/20 text-orange-400 font-mono text-[11px] font-bold">
+                    🔥 ×{currentStudent.streak}
+                  </span>
+                )}
               </div>
               {/* XP Bar */}
               <div className="flex items-center gap-3 max-w-[280px]">

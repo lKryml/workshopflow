@@ -74,6 +74,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
   const [mode, setMode] = useState<SessionMode>('workshop')
   const [title, setTitle] = useState('ورشة Git من الصفر')
   const [description, setDescription] = useState('')
+  const [customCode, setCustomCode] = useState('')
   const [workshopTasks, setWorkshopTasks] = useState<TaskInput[]>(DEFAULT_TASKS)
   const [modules, setModules] = useState<ModuleInput[]>([
     { title: 'الوحدة الأولى', description: '', tasks: [{ title: '', description: '', xp: 100 }] },
@@ -103,7 +104,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
     setLoading(true)
 
     const { data: authUser } = await supabase.auth.getUser()
-    const code = genCode()
+    const code = customCode.length >= 4 ? customCode : genCode()
 
     const { data: sess, error: sErr } = await supabase.from('sessions').insert({
       title, description: description || null,
@@ -223,6 +224,21 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
                 الوصف (اختياري)
               </label>
               <input className={inputCls} value={description} onChange={e => setDescription(e.target.value)} placeholder="وصف مختصر يظهر للطلاب" />
+            </div>
+            <div>
+              <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                كود الانضمام المخصص <span className="text-neutral-600 font-normal normal-case">(اختياري)</span>
+              </label>
+              <input
+                className={inputCls}
+                value={customCode}
+                onChange={e => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
+                placeholder="مثال: GIT101  —  اتركه فارغًا للكود التلقائي"
+                maxLength={10}
+              />
+              {customCode.length > 0 && customCode.length < 4 && (
+                <p className="text-amber-500 text-xs mt-1.5 font-mono">الحد الأدنى 4 أحرف</p>
+              )}
             </div>
           </div>
         </div>

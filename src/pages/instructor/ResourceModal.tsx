@@ -5,6 +5,9 @@ import type { Resource } from '../../types'
 
 type ResourceTab = 'link' | 'embed' | 'file'
 
+const inputCls = 'w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none text-sm transition-all hover:border-neutral-700'
+const labelCls = 'block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider'
+
 export function ResourceModal({
   sessionId,
   tasks,
@@ -24,12 +27,6 @@ export function ResourceModal({
   const [uploading, setUploading] = useState(false)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
-
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '12px 14px', background: '#13131f',
-    border: '1px solid #2d2d50', borderRadius: 10, color: '#e2e8f0',
-    fontSize: 14, outline: 'none', boxSizing: 'border-box',
-  }
 
   const handleAddLink = () => {
     if (!title.trim() || !url.trim()) { setError('Title and URL are required.'); return }
@@ -77,103 +74,141 @@ export function ResourceModal({
   }
 
   const TABS: { key: ResourceTab; label: string; icon: string }[] = [
-    { key: 'link', label: 'Link', icon: '🔗' },
-    { key: 'embed', label: 'Embed', icon: '🎬' },
-    { key: 'file', label: 'File', icon: '📄' },
+    { key: 'link', label: 'رابط', icon: '🔗' },
+    { key: 'embed', label: 'فيديو', icon: '🎬' },
+    { key: 'file', label: 'ملف', icon: '📄' },
   ]
 
   return (
-    <div style={{
-      position: 'fixed', inset: 0, background: '#00000099', zIndex: 2000,
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24,
-    }}>
-      <div style={{
-        background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 20,
-        padding: 28, width: '100%', maxWidth: 460,
-      }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h3 style={{ margin: 0, color: '#e2e8f0', fontSize: 18, fontWeight: 700 }}>📚 Add Resource</h3>
-          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#64748b', fontSize: 20, cursor: 'pointer' }}>×</button>
+    <div
+      dir="rtl"
+      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md bg-[#0a0a0a] border border-neutral-800 rounded-xl p-8 relative overflow-hidden"
+        onClick={e => e.stopPropagation()}
+      >
+        {/* Orange accent line */}
+        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
+
+        {/* Header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <h3 className="text-base font-bold text-white">📚 إضافة مرجع</h3>
+            <p className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mt-0.5">Add Resource</p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-7 h-7 flex items-center justify-center rounded text-neutral-600 hover:text-neutral-400 hover:bg-neutral-800 transition-colors text-lg"
+          >
+            ×
+          </button>
         </div>
 
-        {/* Tabs */}
-        <div style={{ display: 'flex', background: '#13131f', borderRadius: 10, padding: 4, marginBottom: 20 }}>
+        {/* Tabs — underline style */}
+        <div className="flex border-b border-neutral-900 mb-6">
           {TABS.map(t => (
             <button
               key={t.key}
               onClick={() => { setTab(t.key); setError('') }}
-              style={{
-                flex: 1, padding: '8px', border: 'none', borderRadius: 8, cursor: 'pointer',
-                background: tab === t.key ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'transparent',
-                color: tab === t.key ? '#fff' : '#64748b', fontWeight: 700, fontSize: 13,
-              }}
-            >{t.icon} {t.label}</button>
+              className={`flex-1 py-2.5 text-xs font-bold transition-colors ${
+                tab === t.key
+                  ? 'text-orange-400 border-b-2 border-orange-500 -mb-px'
+                  : 'text-neutral-600 hover:text-neutral-400'
+              }`}
+            >
+              {t.icon} {t.label}
+            </button>
           ))}
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div className="flex flex-col gap-4">
+          {/* Title */}
           <div>
-            <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>TITLE *</label>
-            <input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Setup Guide" style={inputStyle} />
+            <label className={labelCls}>العنوان <span className="text-orange-500">*</span></label>
+            <input
+              value={title}
+              onChange={e => setTitle(e.target.value)}
+              placeholder="مثال: دليل الإعداد"
+              className={inputCls}
+            />
           </div>
 
+          {/* URL (link or embed) */}
           {(tab === 'link' || tab === 'embed') && (
             <div>
-              <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                {tab === 'embed' ? 'VIDEO URL (YouTube supported)' : 'URL'} *
+              <label className={labelCls}>
+                {tab === 'embed' ? 'رابط الفيديو (YouTube)' : 'الرابط'} <span className="text-orange-500">*</span>
               </label>
               <input
-                type="url" value={url} onChange={e => setUrl(e.target.value)}
+                type="url"
+                value={url}
+                onChange={e => setUrl(e.target.value)}
                 placeholder={tab === 'embed' ? 'https://youtube.com/watch?v=...' : 'https://example.com'}
-                style={inputStyle}
+                className={inputCls}
               />
             </div>
           )}
 
+          {/* File upload */}
           {tab === 'file' && (
             <div>
-              <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>FILE *</label>
-              <input ref={fileRef} type="file" style={{ ...inputStyle, padding: '10px 14px', color: '#94a3b8' }} />
+              <label className={labelCls}>الملف <span className="text-orange-500">*</span></label>
+              <input
+                ref={fileRef}
+                type="file"
+                className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-2.5 text-neutral-400 text-sm outline-none file:bg-neutral-800 file:border-0 file:text-neutral-300 file:text-xs file:font-bold file:py-1 file:px-2 file:rounded file:mr-3 file:cursor-pointer hover:border-neutral-700 transition-all"
+              />
             </div>
           )}
 
+          {/* Description */}
           <div>
-            <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>DESCRIPTION (OPTIONAL)</label>
-            <input value={description} onChange={e => setDescription(e.target.value)} placeholder="Brief note for students" style={inputStyle} />
+            <label className={labelCls}>الوصف <span className="text-neutral-600 font-normal normal-case">(اختياري)</span></label>
+            <input
+              value={description}
+              onChange={e => setDescription(e.target.value)}
+              placeholder="ملاحظة مختصرة للطلاب"
+              className={inputCls}
+            />
           </div>
 
+          {/* Attach to task */}
           <div>
-            <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>ATTACH TO TASK (OPTIONAL)</label>
+            <label className={labelCls}>ربط بمهمة <span className="text-neutral-600 font-normal normal-case">(اختياري)</span></label>
             <select
               value={taskId ?? ''}
               onChange={e => setTaskId(e.target.value || null)}
-              style={{ ...inputStyle, color: taskId ? '#e2e8f0' : '#4b5563' }}
+              className={`${inputCls} ${!taskId ? 'text-neutral-600' : 'text-neutral-200'}`}
             >
-              <option value="">Session-wide (all tasks)</option>
+              <option value="">لجميع مهام الجلسة</option>
               {tasks.map(t => <option key={t.id} value={t.id}>{t.title}</option>)}
             </select>
           </div>
 
+          {/* Error */}
           {error && (
-            <div style={{ background: '#ef444422', borderRadius: 8, padding: '8px 12px', color: '#fca5a5', fontSize: 13 }}>
+            <div className="bg-red-900/20 border border-red-800/40 rounded-md px-3 py-2 text-red-400 text-xs">
               {error}
             </div>
           )}
 
-          <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
             <button
               onClick={handleSubmit}
               disabled={uploading}
-              style={{
-                flex: 1, padding: '12px', borderRadius: 12, border: 'none',
-                background: uploading ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                color: '#fff', fontWeight: 700, fontSize: 15, cursor: uploading ? 'not-allowed' : 'pointer',
-              }}
-            >{uploading ? '⏳ Uploading…' : '+ Add Resource'}</button>
+              className="flex-1 bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-3 rounded-sm text-sm transition-all hover:-translate-y-0.5 active:translate-y-0"
+            >
+              {uploading ? '⏳ جارٍ الرفع...' : '+ إضافة المرجع'}
+            </button>
             <button
               onClick={onClose}
-              style={{ padding: '12px 20px', background: '#374151', border: 'none', borderRadius: 12, color: '#94a3b8', cursor: 'pointer' }}
-            >Cancel</button>
+              className="px-5 py-3 border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-neutral-300 rounded-sm text-sm transition-colors"
+            >
+              إلغاء
+            </button>
           </div>
         </div>
       </div>

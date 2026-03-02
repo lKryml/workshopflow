@@ -15,7 +15,7 @@ export function InstructorDashboard({
 }) {
   const {
     tasks, students, completions, helpQueue, resources, isConnected,
-    toggleLock, sendBroadcast, resolveHelp, addResource, removeResource, exportCSV,
+    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV,
   } = useInstructorSession(session.id, initialTasks)
 
   const [broadcastMsg, setBroadcastMsg] = useState('')
@@ -280,6 +280,13 @@ export function InstructorDashboard({
                   <span className="font-mono text-[11px] font-bold text-amber-500/70 flex-shrink-0">
                     ⚡{req.student.total_xp}
                   </span>
+                  <button
+                    onClick={() => pingStudent(req.student.id)}
+                    className="flex-shrink-0 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/20 text-amber-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"
+                    title="أعلم الطالب أنك في الطريق"
+                  >
+                    📍 في الطريق
+                  </button>
                   <button
                     onClick={() => resolveHelp(req.student.id, req.completion.task_id)}
                     className="flex-shrink-0 bg-green-500/15 hover:bg-green-500/25 border border-green-500/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"

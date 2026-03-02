@@ -17,6 +17,7 @@ export type InstructorSessionState = {
 export type InstructorSessionActions = {
   toggleLock: (task: Task) => Promise<void>
   sendBroadcast: (message: string) => Promise<boolean>
+  pingStudent: (studentId: string) => Promise<boolean>
   resolveHelp: (studentId: string, taskId: string) => Promise<void>
   addResource: (resource: Omit<Resource, 'id' | 'created_at' | 'resource_order'>) => Promise<void>
   removeResource: (resourceId: string) => Promise<void>
@@ -114,6 +115,16 @@ export function useInstructorSession(
     return result === 'ok'
   }, [])
 
+  const pingStudent = useCallback(async (studentId: string): Promise<boolean> => {
+    if (!broadcastChannelRef.current) return false
+    const result = await broadcastChannelRef.current.send({
+      type: 'broadcast',
+      event: 'student_ping',
+      payload: { student_id: studentId, message: 'مدرسك في الطريق ✓' },
+    })
+    return result === 'ok'
+  }, [])
+
   const resolveHelp = useCallback(async (studentId: string, taskId: string) => {
     const comp = completions.find(c => c.student_id === studentId && c.task_id === taskId && c.is_stuck)
     if (!comp) return
@@ -140,7 +151,7 @@ export function useInstructorSession(
 
   return {
     session, tasks, students, completions, helpQueue, resources, isConnected,
-    toggleLock, sendBroadcast, resolveHelp, addResource, removeResource, exportCSV,
+    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV,
   }
 }
 
