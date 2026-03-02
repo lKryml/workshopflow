@@ -6,7 +6,7 @@ export function XPFloat({ xp, show }: { xp: number; show: boolean }) {
   useEffect(() => {
     if (!show) return
     setVisible(true)
-    const t = setTimeout(() => setVisible(false), 1500)
+    const t = setTimeout(() => setVisible(false), 1800)
     return () => clearTimeout(t)
   }, [show])
 
@@ -19,22 +19,20 @@ export function XPFloat({ xp, show }: { xp: number; show: boolean }) {
         top: '40%',
         left: '50%',
         transform: 'translateX(-50%)',
-        fontSize: 32,
+        fontSize: 40,
         fontWeight: 900,
-        color: '#f59e0b',
+        background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
         zIndex: 9998,
-        animation: 'xpfloat 1.5s ease-out forwards',
+        animation: 'xp-float-pro 1.8s ease-out forwards',
         pointerEvents: 'none',
-        textShadow: '0 0 20px #f59e0b88',
+        fontFamily: 'var(--font-mono)',
+        letterSpacing: '-0.02em',
       }}
     >
       +{xp} XP ⚡
-      <style>{`
-        @keyframes xpfloat {
-          0%   { opacity: 1; transform: translateX(-50%) translateY(0); }
-          100% { opacity: 0; transform: translateX(-50%) translateY(-80px); }
-        }
-      `}</style>
     </div>
   )
 }

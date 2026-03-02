@@ -17,9 +17,11 @@ function ResourceItem({ resource }: { resource: Resource }) {
     : null
 
   return (
-    <div style={{ marginBottom: 12 }}>
-      <div style={{ fontWeight: 600, color: '#e2e8f0', fontSize: 14, marginBottom: 4 }}>{resource.title}</div>
-      {resource.description && <div style={{ color: '#64748b', fontSize: 12, marginBottom: 6 }}>{resource.description}</div>}
+    <div style={{ marginBottom: 14 }}>
+      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{resource.title}</div>
+      {resource.description && (
+        <div style={{ color: 'var(--text-muted)', fontSize: 12, marginBottom: 6 }}>{resource.description}</div>
+      )}
       {resource.resource_type === 'link' && resource.url && (
         <a href={resource.url} target="_blank" rel="noopener noreferrer"
           style={{ color: '#60a5fa', fontSize: 13, wordBreak: 'break-all' }}>
@@ -28,12 +30,12 @@ function ResourceItem({ resource }: { resource: Resource }) {
       )}
       {resource.resource_type === 'file' && resource.file_path && (
         <a href={resource.file_path} target="_blank" rel="noopener noreferrer"
-          style={{ color: '#a78bfa', fontSize: 13 }}>
+          style={{ color: 'var(--brand-light)', fontSize: 13 }}>
           📄 Download File
         </a>
       )}
       {embedUrl && (
-        <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: 8, overflow: 'hidden', marginTop: 4 }}>
+        <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: 8, overflow: 'hidden', marginTop: 6 }}>
           <iframe
             src={embedUrl}
             title={resource.title}
@@ -66,14 +68,12 @@ export function StudentView({
   const [showXP, setShowXP] = useState(false)
   const [lastXP, setLastXP] = useState(0)
   const [levelUpLevel, setLevelUpLevel] = useState<Level | null>(null)
+  const [justCompleted, setJustCompleted] = useState<string | null>(null)
   const [stuckTaskId, setStuckTaskId] = useState<string | null>(null)
   const [stuckNote, setStuckNote] = useState('')
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>('leaderboard')
 
-  // Seed leaderboard with initial student when hook hasn't loaded yet
   const displayLeaderboard = leaderboard.length > 0 ? leaderboard : [initialStudent]
-
-  // Seed tasks from initialTasks until hook loads
   const displayTasks = tasks.length > 0 ? tasks : initialTasks
 
   const handleComplete = useCallback(async (task: Task) => {
@@ -84,7 +84,12 @@ export function StudentView({
     setLastXP(task.xp_reward)
     setShowXP(true)
     setShowConfetti(true)
-    setTimeout(() => { setShowXP(false); setShowConfetti(false) }, 2000)
+    setJustCompleted(task.id)
+    setTimeout(() => {
+      setShowXP(false)
+      setShowConfetti(false)
+      setJustCompleted(null)
+    }, 800)
     if (newLevel.min > prevLevel.min) {
       setLevelUpLevel(newLevel)
     }
@@ -103,17 +108,12 @@ export function StudentView({
   const { progress, needed } = xpToNextLevel(currentStudent.total_xp)
   const rank = displayLeaderboard.findIndex(s => s.id === currentStudent.id) + 1
 
-  // For resources panel: which task is the student currently on?
   const currentTask = sortedTasks.find(t => !t.is_locked && !completions.find(c => c.task_id === t.id && !c.is_stuck))
   const taskResources = currentTask ? resources.filter(r => r.task_id === currentTask.id) : []
   const sessionResources = resources.filter(r => r.task_id === null)
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(160deg, #0a0a14 0%, #1a0533 50%, #0a0a14 100%)',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif", color: '#e2e8f0',
-    }}>
+    <div className="bg-base bg-space" style={{ minHeight: '100vh' }}>
       <ConnectionStatus state={isConnected ? 'connected' : 'reconnecting'} />
       <Confetti trigger={showConfetti} />
       <XPFloat xp={lastXP} show={showXP} />
@@ -122,170 +122,175 @@ export function StudentView({
 
       {/* Stuck Modal */}
       {stuckTaskId && (
-        <div style={{
-          position: 'fixed', inset: 0, background: '#00000099', zIndex: 1000,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-        }}>
-          <div style={{ background: '#1e1e35', border: '1px solid #ef444433', borderRadius: 20, padding: 28, width: 360 }}>
-            <h3 style={{ margin: '0 0 8px', color: '#fca5a5' }}>🆘 Ask for help</h3>
-            <p style={{ color: '#94a3b8', fontSize: 14, margin: '0 0 16px' }}>Tell your instructor what went wrong (optional):</p>
-            <textarea
-              value={stuckNote}
-              onChange={e => setStuckNote(e.target.value)}
-              placeholder="e.g. permission denied error…"
-              style={{
-                width: '100%', height: 80, background: '#13131f', border: '1px solid #2d2d50',
-                borderRadius: 10, color: '#e2e8f0', fontSize: 14, padding: 10, resize: 'none',
-                outline: 'none', boxSizing: 'border-box',
-              }}
-            />
-            <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-              <button
-                onClick={handleStuckSubmit}
-                style={{
-                  flex: 1, padding: '12px',
-                  background: 'linear-gradient(135deg,#ef4444,#f97316)',
-                  border: 'none', borderRadius: 10, color: '#fff', fontWeight: 700, cursor: 'pointer',
-                }}
-              >Send Help Request</button>
-              <button
-                onClick={() => { setStuckTaskId(null); setStuckNote('') }}
-                style={{ padding: '12px 16px', background: '#374151', border: 'none', borderRadius: 10, color: '#94a3b8', cursor: 'pointer' }}
-              >Cancel</button>
+        <div className="modal-overlay">
+          <div className="modal-panel">
+            <div className="glass glass-raised" style={{ padding: 28 }}>
+              <h3 style={{ margin: '0 0 8px', color: '#fca5a5', fontSize: 18 }}>🆘 Ask for help</h3>
+              <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 16px' }}>
+                Tell your instructor what went wrong (optional):
+              </p>
+              <textarea
+                value={stuckNote}
+                onChange={e => setStuckNote(e.target.value)}
+                placeholder="e.g. permission denied error…"
+                className="field-input"
+                style={{ height: 80, resize: 'none', marginBottom: 14 }}
+              />
+              <div style={{ display: 'flex', gap: 10 }}>
+                <button className="btn btn-danger btn-full" onClick={handleStuckSubmit} style={{ padding: '12px' }}>
+                  Send Help Request
+                </button>
+                <button
+                  className="btn btn-ghost"
+                  onClick={() => { setStuckTaskId(null); setStuckNote('') }}
+                  style={{ padding: '12px 16px' }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       <div style={{ padding: 24, maxWidth: 960, margin: '0 auto' }}>
-        {/* Profile Card */}
-        <div style={{
-          background: 'linear-gradient(135deg, #1e1e35, #2d1b4e)',
-          border: '1px solid #3d2d6e', borderRadius: 24, padding: 24, marginBottom: 24,
-          display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap',
-        }}>
-          <div style={{ position: 'relative' }}>
-            <div style={{
-              width: 72, height: 72, borderRadius: 20,
-              background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 40, boxShadow: '0 0 24px #7c3aed66',
-            }}>{currentStudent.avatar}</div>
-            <div style={{
-              position: 'absolute', bottom: -4, right: -4, fontSize: 18,
-              background: '#1e1e35', borderRadius: 8, padding: '2px 4px',
-            }}>{level.icon}</div>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
-              <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{currentStudent.name}</h2>
-              {rank > 0 && (
-                <span style={{
-                  background: '#f59e0b22', color: '#f59e0b', border: '1px solid #f59e0b44',
-                  borderRadius: 8, padding: '2px 8px', fontSize: 12, fontWeight: 700,
-                }}>#{rank} on leaderboard</span>
-              )}
+        {/* Profile Hero */}
+        <div className="glass glass-raised" style={{ padding: '24px 28px', marginBottom: 24 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                width: 72, height: 72, borderRadius: 20,
+                background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 40, boxShadow: '0 0 32px rgba(124,58,237,0.5)',
+              }}>{currentStudent.avatar}</div>
+              <div style={{
+                position: 'absolute', bottom: -4, right: -4, fontSize: 16,
+                background: 'var(--bg-base)', borderRadius: 8, padding: '2px 4px',
+              }}>{level.icon}</div>
             </div>
-            <div style={{ color: level.color, fontWeight: 700, fontSize: 15, marginBottom: 8 }}>{level.icon} {level.name}</div>
-            <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
-              <div style={{ height: 8, flex: 1, background: '#13131f', borderRadius: 99, overflow: 'hidden', maxWidth: 240 }}>
-                <div style={{
-                  height: '100%', width: `${progress}%`, borderRadius: 99,
-                  background: `linear-gradient(90deg, ${level.color}, #a78bfa)`, transition: 'width 0.5s ease',
-                }} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
+                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{currentStudent.name}</h2>
+                {rank > 0 && (
+                  <span className="badge-amber">#{rank} on leaderboard</span>
+                )}
               </div>
-              <span style={{ color: '#64748b', fontSize: 12 }}>
-                {needed > 0 ? `${needed} XP to next level` : 'MAX LEVEL 🔥'}
-              </span>
+              <div style={{ color: level.color, fontWeight: 700, fontSize: 14, marginBottom: 10 }}>
+                {level.icon} {level.name}
+              </div>
+              <div style={{ display: 'flex', gap: 10, alignItems: 'center', maxWidth: 280 }}>
+                <div className="xp-track" style={{ flex: 1 }}>
+                  <div
+                    className="xp-fill"
+                    style={{
+                      width: `${progress}%`,
+                      background: `linear-gradient(90deg, ${level.color}, var(--brand-light))`,
+                    }}
+                  />
+                </div>
+                <span style={{ color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>
+                  {needed > 0 ? `${needed} XP to next` : 'MAX LEVEL 🔥'}
+                </span>
+              </div>
             </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 32, fontWeight: 900, color: '#f59e0b', lineHeight: 1 }}>⚡{currentStudent.total_xp}</div>
-            <div style={{ color: '#64748b', fontSize: 12 }}>Total XP</div>
-            <div style={{ color: '#94a3b8', fontSize: 14, marginTop: 4 }}>{doneCount}/{displayTasks.length} tasks</div>
+            <div style={{ textAlign: 'right' }}>
+              <div className="xp-num" style={{ fontSize: 32 }}>⚡{currentStudent.total_xp.toLocaleString()}</div>
+              <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Total XP</div>
+              <div style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>
+                {doneCount}/{displayTasks.length} tasks
+              </div>
+            </div>
           </div>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 280px', gap: 20, alignItems: 'start' }}>
+        <div className="student-grid">
           {/* Task Checklist */}
           <div>
-            <h3 style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, marginBottom: 16, letterSpacing: 1 }}>
-              {session.session_type === 'course' ? 'COURSE TASKS' : 'WORKSHOP TASKS'}
-            </h3>
+            <div className="section-label">
+              {session.session_type === 'course' ? 'Course Tasks' : 'Workshop Tasks'}
+            </div>
             {sortedTasks.map((task, i) => {
               const isCompleted = !!completions.find(c => c.task_id === task.id && !c.is_stuck)
               const isStuck = !!completions.find(c => c.task_id === task.id && c.is_stuck)
               const isAvailable = !task.is_locked
+              const isFlashing = justCompleted === task.id
 
               return (
-                <div key={task.id} style={{
-                  background: isCompleted ? 'linear-gradient(135deg,#10b98111,#1e1e35)' : task.is_locked ? '#13131f' : '#1e1e35',
-                  border: `1px solid ${isCompleted ? '#10b98144' : isStuck ? '#ef444444' : task.is_locked ? '#1a1a2e' : '#2d2d50'}`,
-                  borderRadius: 16, padding: 20, marginBottom: 12, transition: 'all 0.3s',
-                  opacity: task.is_locked && !isCompleted ? 0.5 : 1,
+                <div key={task.id} className="glass-sm" style={{
+                  padding: '20px 22px', marginBottom: 12,
+                  opacity: task.is_locked && !isCompleted ? 0.4 : 1,
+                  transition: 'all 0.3s',
+                  borderColor: isCompleted ? 'rgba(16,185,129,0.3)' : isStuck ? 'rgba(239,68,68,0.3)' : undefined,
+                  background: isCompleted ? 'rgba(16,185,129,0.04)' : undefined,
+                  animation: isFlashing ? 'task-complete-flash 0.6s ease' : isStuck ? 'glow-pulse 1.8s ease-in-out infinite' : undefined,
                 }}>
-                  <div style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                  <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
                     <div style={{
-                      width: 40, height: 40, borderRadius: 12, flexShrink: 0, marginTop: 2,
-                      background: isCompleted ? '#10b981' : task.is_locked ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
+                      width: 38, height: 38, borderRadius: 11, flexShrink: 0, marginTop: 2,
+                      background: isCompleted
+                        ? 'var(--green)'
+                        : task.is_locked ? 'var(--text-muted)' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 18, boxShadow: isCompleted ? '0 0 16px #10b98166' : task.is_locked ? 'none' : '0 0 16px #7c3aed44',
+                      fontSize: 16,
+                      boxShadow: isCompleted ? 'var(--glow-green)' : task.is_locked ? 'none' : 'var(--glow-brand)',
                     }}>
                       {isCompleted ? '✅' : task.is_locked ? '🔒' : i + 1}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
                         <h4 style={{
-                          margin: '0 0 4px', fontSize: 16, fontWeight: 700,
-                          color: isCompleted ? '#10b981' : '#e2e8f0',
+                          margin: 0, fontSize: 15, fontWeight: 700,
+                          color: isCompleted ? 'var(--green)' : 'var(--text-primary)',
                           textDecoration: isCompleted ? 'line-through' : 'none',
                         }}>{task.title}</h4>
-                        <span style={{
-                          background: '#f59e0b22', color: '#f59e0b', border: '1px solid #f59e0b33',
-                          borderRadius: 8, padding: '2px 8px', fontSize: 12, fontWeight: 700, flexShrink: 0, marginLeft: 8,
-                        }}>⚡ {task.xp_reward} XP</span>
+                        <span className="badge-amber" style={{ marginLeft: 8, flexShrink: 0 }}>⚡ {task.xp_reward}</span>
                       </div>
                       {task.description && (
-                        <p style={{ margin: '0 0 12px', color: '#64748b', fontSize: 13, lineHeight: 1.5 }}>{task.description}</p>
+                        <p style={{ margin: '0 0 10px', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>
+                          {task.description}
+                        </p>
                       )}
                       {!isCompleted && !isStuck && isAvailable && (
-                        <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
+                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
                           <button
+                            className="btn btn-success btn-sm"
                             onClick={() => handleComplete(task)}
-                            style={{
-                              padding: '10px 20px', background: 'linear-gradient(135deg,#10b981,#059669)',
-                              border: 'none', borderRadius: 10, color: '#fff', fontWeight: 700,
-                              cursor: 'pointer', fontSize: 14, boxShadow: '0 4px 16px #10b98144',
-                            }}
-                            onMouseOver={e => e.currentTarget.style.transform = 'scale(1.03)'}
-                            onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}
                           >✅ Mark as Done</button>
                           <button
+                            className="btn btn-sm"
                             onClick={() => setStuckTaskId(task.id)}
                             style={{
-                              padding: '10px 14px', background: '#ef444422', border: '1px solid #ef444444',
-                              borderRadius: 10, color: '#fca5a5', fontWeight: 600, cursor: 'pointer', fontSize: 14,
+                              background: 'rgba(239,68,68,0.1)',
+                              border: '1px solid rgba(239,68,68,0.3)',
+                              color: '#fca5a5',
                             }}
                           >🆘 I'm Stuck</button>
                         </div>
                       )}
                       {isStuck && (
                         <div style={{ marginTop: 8 }}>
-                          <div style={{ background: '#ef444422', borderRadius: 10, padding: '8px 12px', color: '#fca5a5', fontSize: 13, marginBottom: 8 }}>
+                          <div style={{
+                            background: 'rgba(239,68,68,0.1)', borderRadius: 8,
+                            padding: '8px 12px', color: '#fca5a5', fontSize: 13, marginBottom: 8,
+                          }}>
                             🆘 Help requested — your instructor is on the way!
                           </div>
                           <button
+                            className="btn btn-success btn-sm"
                             onClick={() => unmarkStuck(task.id)}
-                            style={{
-                              padding: '8px 14px', background: '#10b98122', border: '1px solid #10b98144',
-                              borderRadius: 8, color: '#10b981', cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                            }}
                           >✓ I'm no longer stuck</button>
                         </div>
                       )}
-                      {isCompleted && <div style={{ color: '#10b981', fontSize: 13, fontWeight: 600, marginTop: 4 }}>✨ Completed!</div>}
+                      {isCompleted && (
+                        <div style={{ color: 'var(--green)', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
+                          ✨ Completed!
+                        </div>
+                      )}
                       {task.is_locked && !isCompleted && (
-                        <div style={{ color: '#4b5563', fontSize: 13, marginTop: 4 }}>🔒 Locked — wait for your instructor to unlock this step</div>
+                        <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>
+                          🔒 Locked — wait for your instructor to unlock this step
+                        </div>
                       )}
                     </div>
                   </div>
@@ -296,17 +301,21 @@ export function StudentView({
 
           {/* Sidebar */}
           <div style={{ position: 'sticky', top: 24 }}>
-            {/* Sidebar Tabs */}
-            <div style={{ display: 'flex', background: '#1e1e35', borderRadius: 12, padding: 4, marginBottom: 12 }}>
+            {/* Tab pill */}
+            <div className="glass" style={{ display: 'flex', padding: 4, borderRadius: 12, marginBottom: 12 }}>
               {(['leaderboard', 'resources'] as SidebarTab[]).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setSidebarTab(tab)}
+                  className="btn"
                   style={{
-                    flex: 1, padding: '8px', border: 'none', borderRadius: 10, cursor: 'pointer',
+                    flex: 1,
+                    padding: '8px',
+                    borderRadius: 10,
                     background: sidebarTab === tab ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'transparent',
-                    color: sidebarTab === tab ? '#fff' : '#64748b',
-                    fontWeight: 700, fontSize: 13, transition: 'all 0.2s',
+                    color: sidebarTab === tab ? '#fff' : 'var(--text-muted)',
+                    fontWeight: 700, fontSize: 13,
+                    transition: 'var(--transition-fast)',
                   }}
                 >
                   {tab === 'leaderboard' ? '🏆 Leaderboard' : '📚 Resources'}
@@ -314,7 +323,7 @@ export function StudentView({
               ))}
             </div>
 
-            <div style={{ background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 16, padding: 16 }}>
+            <div className="glass" style={{ padding: 16 }}>
               {sidebarTab === 'leaderboard' ? (
                 <>
                   {displayLeaderboard.slice(0, 8).map((s, i) => {
@@ -323,22 +332,26 @@ export function StudentView({
                     const medals = ['🥇', '🥈', '🥉']
                     return (
                       <div key={s.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 8, padding: '10px 10px',
-                        borderRadius: 12, marginBottom: 6, transition: 'all 0.2s',
-                        background: isMe ? 'linear-gradient(135deg,#7c3aed22,#a855f722)' : 'transparent',
-                        border: isMe ? '1px solid #7c3aed44' : '1px solid transparent',
+                        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
+                        borderRadius: 10, marginBottom: 4, transition: 'all 0.2s',
+                        background: isMe
+                          ? 'rgba(124,58,237,0.12)'
+                          : i === 0 ? 'rgba(245,158,11,0.06)' : 'transparent',
+                        border: isMe ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
                       }}>
-                        <span style={{ fontSize: 16, width: 22, textAlign: 'center' }}>{medals[i] || `${i + 1}`}</span>
-                        <span style={{ fontSize: 20 }}>{s.avatar}</span>
+                        <span style={{ fontSize: 14, width: 20, textAlign: 'center' }}>
+                          {medals[i] || `${i + 1}`}
+                        </span>
+                        <span style={{ fontSize: 18 }}>{s.avatar}</span>
                         <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{
-                            fontWeight: isMe ? 800 : 600, fontSize: 14,
-                            color: isMe ? '#a78bfa' : '#e2e8f0',
+                            fontWeight: isMe ? 800 : 600, fontSize: 13,
+                            color: isMe ? 'var(--brand-light)' : 'var(--text-primary)',
                             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                           }}>{s.name}{isMe ? ' (you)' : ''}</div>
                           <div style={{ fontSize: 10, color: lvl.color }}>{lvl.icon} {lvl.name}</div>
                         </div>
-                        <div style={{ fontWeight: 800, color: '#f59e0b', fontSize: 14, flexShrink: 0 }}>⚡{s.total_xp}</div>
+                        <div className="xp-num" style={{ fontSize: 13 }}>⚡{s.total_xp}</div>
                       </div>
                     )
                   })}
@@ -347,7 +360,7 @@ export function StudentView({
                 <div>
                   {taskResources.length > 0 && (
                     <div style={{ marginBottom: 16 }}>
-                      <div style={{ color: '#a78bfa', fontSize: 12, fontWeight: 700, marginBottom: 10, letterSpacing: 1 }}>
+                      <div style={{ color: 'var(--brand-light)', fontSize: 11, fontWeight: 700, marginBottom: 10, letterSpacing: 0.1 }}>
                         📌 FOR THIS TASK
                       </div>
                       {taskResources.map(r => <ResourceItem key={r.id} resource={r} />)}
@@ -355,14 +368,12 @@ export function StudentView({
                   )}
                   {sessionResources.length > 0 && (
                     <div>
-                      <div style={{ color: '#64748b', fontSize: 12, fontWeight: 700, marginBottom: 10, letterSpacing: 1 }}>
-                        SESSION RESOURCES
-                      </div>
+                      <div className="section-label">Session Resources</div>
                       {sessionResources.map(r => <ResourceItem key={r.id} resource={r} />)}
                     </div>
                   )}
                   {taskResources.length === 0 && sessionResources.length === 0 && (
-                    <div style={{ color: '#475569', fontSize: 13, textAlign: 'center', padding: 16 }}>
+                    <div style={{ color: 'var(--text-muted)', fontSize: 13, textAlign: 'center', padding: 16 }}>
                       No resources yet. Your instructor will add them here.
                     </div>
                   )}

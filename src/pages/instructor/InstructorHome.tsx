@@ -39,89 +39,75 @@ export function InstructorHome({
   }
 
   return (
-    <div style={{
-      minHeight: '100vh', background: '#0a0a14',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif", color: '#e2e8f0',
-    }}>
-      {/* Header */}
-      <div style={{
-        background: 'linear-gradient(90deg, #1a0533, #0f0f2a)',
-        borderBottom: '1px solid #1e1e35', padding: '16px 24px',
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 24 }}>⚡</span>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 800, color: '#e2e8f0' }}>WorkshopFlow</h1>
-        </div>
-        <button
-          onClick={handleSignOut}
-          style={{
-            background: 'none', border: '1px solid #374151', borderRadius: 8,
-            color: '#64748b', padding: '8px 14px', cursor: 'pointer', fontSize: 13,
-          }}
-        >
+    <div className="bg-base bg-space" style={{ minHeight: '100vh' }}>
+      <div className="top-bar">
+        <span style={{ fontSize: 20 }}>⚡</span>
+        <span className="gradient-text" style={{ fontSize: 18, fontWeight: 800, flex: 1 }}>
+          WorkshopFlow
+        </span>
+        <button className="btn btn-ghost btn-sm" onClick={handleSignOut}>
           Sign Out
         </button>
       </div>
 
-      <div style={{ maxWidth: 860, margin: '0 auto', padding: '32px 24px' }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 32 }}>
+      <div style={{ maxWidth: 900, margin: '0 auto', padding: '32px 24px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 32 }}>
           <div>
-            <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>Your Sessions</h2>
-            <p style={{ color: '#64748b', margin: '4px 0 0', fontSize: 14 }}>Create or reopen a workshop or course.</p>
+            <h2 className="gradient-text" style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>
+              Your Sessions
+            </h2>
+            <p style={{ color: 'var(--text-muted)', margin: 0, fontSize: 14 }}>
+              Create or reopen a workshop or course.
+            </p>
           </div>
-          <button
-            onClick={onNewWorkshop}
-            style={{
-              padding: '12px 24px', borderRadius: 12, border: 'none', cursor: 'pointer',
-              background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
-              color: '#fff', fontWeight: 700, fontSize: 15,
-              boxShadow: '0 4px 20px #7c3aed55',
-            }}
-          >
+          <button className="btn btn-primary" onClick={onNewWorkshop} style={{ fontSize: 15, padding: '12px 22px' }}>
             + New Session
           </button>
         </div>
 
         {loading ? (
-          <div style={{ textAlign: 'center', color: '#475569', padding: 48 }}>Loading…</div>
+          <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 48 }}>Loading…</div>
         ) : sessions.length === 0 ? (
-          <div style={{
-            background: '#1e1e35', border: '2px dashed #2d2d50', borderRadius: 20,
-            padding: 56, textAlign: 'center', color: '#475569',
+          <div className="glass" style={{
+            border: '1px dashed var(--border-1)',
+            padding: 56,
+            textAlign: 'center',
+            color: 'var(--text-muted)',
           }}>
             <div style={{ fontSize: 40, marginBottom: 12 }}>🎓</div>
             <p style={{ margin: 0, fontSize: 16 }}>No sessions yet. Create your first workshop!</p>
           </div>
         ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            {sessions.map(s => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            {sessions.map((s, i) => (
               <div
                 key={s.id}
+                className="glass glass-hover"
                 style={{
-                  background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 16,
-                  padding: '18px 20px', display: 'flex', alignItems: 'center', gap: 16,
+                  padding: '18px 22px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 16,
+                  animation: 'slide-in-up 0.4s ease',
+                  animationDelay: `${i * 0.06}s`,
+                  animationFillMode: 'both',
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, fontSize: 16, color: '#e2e8f0' }}>{s.title}</div>
-                  <div style={{ display: 'flex', gap: 16, marginTop: 4 }}>
-                    <span style={{ color: '#a78bfa', fontWeight: 700, letterSpacing: 2, fontSize: 14 }}>{s.join_code}</span>
-                    <span style={{ color: '#64748b', fontSize: 13 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                    <span style={{ fontWeight: 700, fontSize: 16 }}>{s.title}</span>
+                    <span className="code-display">{s.join_code}</span>
+                    <span className={s.session_type === 'course' ? 'badge-cyan' : 'badge-brand'}>
                       {s.session_type === 'course' ? '📚 Course' : '🔧 Workshop'}
                     </span>
-                    <span style={{ color: '#64748b', fontSize: 13 }}>
-                      {new Date(s.created_at).toLocaleDateString()}
-                    </span>
                   </div>
+                  <span style={{ color: 'var(--text-muted)', fontSize: 12 }}>
+                    {new Date(s.created_at).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
+                  </span>
                 </div>
                 <button
+                  className="btn btn-primary btn-sm"
                   onClick={() => handleOpen(s)}
-                  style={{
-                    padding: '10px 20px', borderRadius: 10, border: 'none', cursor: 'pointer',
-                    background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                    color: '#fff', fontWeight: 700, fontSize: 14,
-                  }}
                 >
                   Open Dashboard →
                 </button>

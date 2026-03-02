@@ -7,7 +7,6 @@ export type StudentStatus = 'done' | 'working' | 'stuck' | 'idle'
 export type ConnectionState = 'connected' | 'reconnecting' | 'offline'
 
 export type Route =
-  | 'landing'
   | 'instructor-auth'
   | 'instructor-home'
   | 'instructor-create'

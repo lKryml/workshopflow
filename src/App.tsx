@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { supabase } from './supabase'
-import { Landing } from './pages/Landing'
 import { InstructorAuth } from './pages/auth/InstructorAuth'
 import { InstructorHome } from './pages/instructor/InstructorHome'
 import { CreateSession } from './pages/instructor/CreateSession'
@@ -10,7 +9,7 @@ import { StudentView } from './pages/student/StudentView'
 import type { Route, Session, Student, Task } from './types'
 
 export default function App() {
-  const [route, setRoute] = useState<Route>('landing')
+  const [route, setRoute] = useState<Route>('student-join')
   const [session, setSession] = useState<Session | null>(null)
   const [tasks, setTasks] = useState<Task[]>([])
   const [student, setStudent] = useState<Student | null>(null)
@@ -68,13 +67,12 @@ export default function App() {
     setRoute('instructor-dashboard')
   }
 
-  if (route === 'landing') return <Landing onInstructor={() => setRoute('instructor-auth')} onStudent={() => setRoute('student-join')} />
-  if (route === 'instructor-auth') return <InstructorAuth onAuth={() => setRoute('instructor-home')} />
+  if (route === 'instructor-auth') return <InstructorAuth onAuth={() => setRoute('instructor-home')} onBack={() => setRoute('student-join')} />
   if (route === 'instructor-home') return <InstructorHome onNewWorkshop={() => setRoute('instructor-create')} onOpenSession={handleOpenSession} />
   if (route === 'instructor-create') return <CreateSession onSessionReady={handleSessionReady} />
   if (route === 'instructor-dashboard' && session) return <InstructorDashboard session={session} initialTasks={tasks} />
-  if (route === 'student-join') return <StudentJoin onJoined={handleStudentJoined} />
+  if (route === 'student-join') return <StudentJoin onJoined={handleStudentJoined} onInstructorPortal={() => setRoute('instructor-auth')} />
   if (route === 'student-view' && student && session) return <StudentView student={student} session={session} initialTasks={tasks} />
 
-  return <Landing onInstructor={() => setRoute('instructor-auth')} onStudent={() => setRoute('student-join')} />
+  return <StudentJoin onJoined={handleStudentJoined} onInstructorPortal={() => setRoute('instructor-auth')} />
 }

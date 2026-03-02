@@ -3,7 +3,13 @@ import { supabase } from '../../supabase'
 
 type AuthTab = 'login' | 'register'
 
-export function InstructorAuth({ onAuth }: { onAuth: () => void }) {
+export function InstructorAuth({
+  onAuth,
+  onBack,
+}: {
+  onAuth: () => void
+  onBack: () => void
+}) {
   const [tab, setTab] = useState<AuthTab>('login')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -42,39 +48,60 @@ export function InstructorAuth({ onAuth }: { onAuth: () => void }) {
     setMagicSent(true)
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '14px 16px', background: '#13131f',
-    border: '1px solid #2d2d50', borderRadius: 12, color: '#e2e8f0',
-    fontSize: 15, outline: 'none', boxSizing: 'border-box',
-  }
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0533 50%, #0f0f1a 100%)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif", padding: 24,
-    }}>
-      <div style={{ width: '100%', maxWidth: 420 }}>
+    <div
+      className="bg-base bg-space bg-animated"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        position: 'relative',
+      }}
+    >
+      {/* Back button */}
+      <button
+        className="btn btn-ghost btn-sm"
+        onClick={onBack}
+        style={{ position: 'absolute', top: 20, left: 24 }}
+      >
+        ← Join a workshop
+      </button>
+
+      <div style={{ width: '100%', maxWidth: 420, animation: 'slide-in-up 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 8 }}>🎓</div>
-          <h2 style={{ color: '#e2e8f0', fontSize: 26, fontWeight: 800, margin: 0 }}>Instructor Portal</h2>
-          <p style={{ color: '#64748b', marginTop: 8 }}>Sign in to manage your workshops.</p>
+          <div style={{ fontSize: 48, marginBottom: 12 }}>🎓</div>
+          <h2 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>Instructor Portal</h2>
+          <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: 14 }}>
+            Sign in to manage your workshops.
+          </p>
         </div>
 
-        {/* Tabs */}
+        {/* Underline tab switcher */}
         <div style={{
-          display: 'flex', background: '#1e1e35', borderRadius: 12, padding: 4, marginBottom: 24,
+          display: 'flex',
+          borderBottom: '1px solid var(--border-1)',
+          marginBottom: 24,
+          gap: 0,
         }}>
           {(['login', 'register'] as AuthTab[]).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setError('') }}
               style={{
-                flex: 1, padding: '10px', border: 'none', borderRadius: 10, cursor: 'pointer',
-                background: tab === t ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'transparent',
-                color: tab === t ? '#fff' : '#64748b', fontWeight: 700, fontSize: 14,
-                transition: 'all 0.2s',
+                flex: 1,
+                padding: '10px 0',
+                border: 'none',
+                borderBottom: tab === t ? '2px solid var(--brand)' : '2px solid transparent',
+                background: 'transparent',
+                color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)',
+                fontWeight: tab === t ? 700 : 500,
+                fontSize: 14,
+                cursor: 'pointer',
+                transition: 'var(--transition-fast)',
+                marginBottom: -1,
               }}
             >
               {t === 'login' ? 'Sign In' : 'Register'}
@@ -82,73 +109,75 @@ export function InstructorAuth({ onAuth }: { onAuth: () => void }) {
           ))}
         </div>
 
-        <div style={{ background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 20, padding: 28 }}>
+        <div className="glass glass-raised" style={{ padding: 28 }}>
           {magicSent ? (
             <div style={{ textAlign: 'center', padding: '16px 0' }}>
               <div style={{ fontSize: 40, marginBottom: 12 }}>📬</div>
-              <p style={{ color: '#a78bfa', fontWeight: 700, fontSize: 16, margin: '0 0 8px' }}>Check your email!</p>
-              <p style={{ color: '#64748b', fontSize: 14, margin: 0 }}>We sent a magic link to <strong style={{ color: '#e2e8f0' }}>{email}</strong></p>
-              <button onClick={() => setMagicSent(false)} style={{
-                marginTop: 20, background: 'none', border: '1px solid #2d2d50',
-                borderRadius: 8, color: '#94a3b8', padding: '8px 16px', cursor: 'pointer', fontSize: 13,
-              }}>Back</button>
+              <p style={{ color: 'var(--brand-light)', fontWeight: 700, fontSize: 16, margin: '0 0 8px' }}>
+                Check your email!
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: 0 }}>
+                We sent a magic link to{' '}
+                <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>
+              </p>
+              <button
+                className="btn btn-ghost btn-sm"
+                onClick={() => setMagicSent(false)}
+                style={{ marginTop: 20 }}
+              >
+                Back
+              </button>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {tab === 'register' && (
                 <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>DISPLAY NAME</label>
+                  <label className="field-label">Display Name</label>
                   <input
-                    value={displayName} onChange={e => setDisplayName(e.target.value)}
+                    className="field-input"
+                    value={displayName}
+                    onChange={e => setDisplayName(e.target.value)}
                     placeholder="e.g. Alex Chen"
-                    style={inputStyle}
                   />
                 </div>
               )}
               <div>
-                <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>EMAIL</label>
+                <label className="field-label">Email</label>
                 <input
-                  type="email" value={email} onChange={e => setEmail(e.target.value)}
+                  type="email"
+                  className="field-input"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  style={inputStyle}
                 />
               </div>
               <div>
-                <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>PASSWORD</label>
+                <label className="field-label">Password</label>
                 <input
-                  type="password" value={password} onChange={e => setPassword(e.target.value)}
+                  type="password"
+                  className="field-input"
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={inputStyle}
+                  onKeyDown={e => e.key === 'Enter' && (tab === 'login' ? handleLogin() : handleRegister())}
                 />
               </div>
 
-              {error && (
-                <div style={{ background: '#ef444422', borderRadius: 10, padding: '10px 14px', color: '#fca5a5', fontSize: 13 }}>
-                  {error}
-                </div>
-              )}
+              {error && <div className="error-box">{error}</div>}
 
               <button
+                className="btn btn-primary btn-full"
                 onClick={tab === 'login' ? handleLogin : handleRegister}
                 disabled={loading}
-                style={{
-                  width: '100%', padding: '14px', borderRadius: 12, border: 'none',
-                  background: loading ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                  color: '#fff', fontSize: 16, fontWeight: 700, cursor: loading ? 'not-allowed' : 'pointer',
-                  boxShadow: loading ? 'none' : '0 8px 24px #7c3aed66',
-                }}
+                style={{ padding: '14px', fontSize: 15 }}
               >
                 {loading ? '⏳ Please wait…' : tab === 'login' ? 'Sign In →' : 'Create Account →'}
               </button>
 
               <button
+                className="btn btn-ghost btn-full"
                 onClick={handleMagicLink}
                 disabled={loading}
-                style={{
-                  width: '100%', padding: '12px', borderRadius: 12,
-                  border: '1px solid #2d2d50', background: 'transparent',
-                  color: '#94a3b8', fontSize: 14, cursor: 'pointer',
-                }}
               >
                 🔗 Send magic link instead
               </button>

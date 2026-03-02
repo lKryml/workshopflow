@@ -28,63 +28,66 @@ function TaskEditor({
   return (
     <div>
       {tasks.map((task, i) => (
-        <div key={i} style={{
-          background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 16, padding: 16, marginBottom: 12,
-        }}>
-          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10 }}>
+        <div key={i} className="glass-sm" style={{ padding: 14, marginBottom: 8 }}>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 8 }}>
             <div style={{
-              width: 28, height: 28, borderRadius: 8,
+              width: 26, height: 26, borderRadius: 8, flexShrink: 0,
               background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: '#fff', fontSize: 13, fontWeight: 700, flexShrink: 0,
+              color: '#fff', fontSize: 12, fontWeight: 800,
             }}>{i + 1}</div>
             <input
-              value={task.title} onChange={e => update(i, 'title', e.target.value)}
+              value={task.title}
+              onChange={e => update(i, 'title', e.target.value)}
               placeholder="Task title"
-              style={{
-                flex: 1, padding: '10px 12px', background: '#13131f',
-                border: '1px solid #2d2d50', borderRadius: 10, color: '#e2e8f0', fontSize: 15, outline: 'none',
-              }}
+              className="field-input"
+              style={{ flex: 1 }}
             />
-            <input
-              value={task.xp} type="number" onChange={e => update(i, 'xp', Number(e.target.value))}
-              style={{
-                width: 80, padding: '10px 12px', background: '#13131f',
-                border: '1px solid #f59e0b44', borderRadius: 10, color: '#f59e0b', fontSize: 14,
-                outline: 'none', fontWeight: 700,
-              }}
-            />
-            <span style={{ color: '#f59e0b', fontSize: 12, fontWeight: 600 }}>XP</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4, flexShrink: 0 }}>
+              <input
+                value={task.xp}
+                type="number"
+                onChange={e => update(i, 'xp', Number(e.target.value))}
+                className="field-input"
+                style={{
+                  width: 70,
+                  color: 'var(--amber)',
+                  fontWeight: 700,
+                  padding: '8px 10px',
+                  borderColor: 'rgba(245,158,11,0.3)',
+                }}
+              />
+              <span style={{ color: 'var(--amber)', fontSize: 11, fontWeight: 700 }}>XP</span>
+            </div>
             {tasks.length > 1 && (
               <button
                 onClick={() => remove(i)}
-                style={{
-                  background: '#ef444422', border: '1px solid #ef444444',
-                  borderRadius: 8, color: '#ef4444', padding: '6px 10px', cursor: 'pointer', fontSize: 14,
-                }}
+                className="btn btn-sm"
+                style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--red)', border: '1px solid rgba(239,68,68,0.3)', padding: '6px 10px' }}
               >✕</button>
             )}
           </div>
           <input
-            value={task.description} onChange={e => update(i, 'description', e.target.value)}
+            value={task.description}
+            onChange={e => update(i, 'description', e.target.value)}
             placeholder="Short hint for students (optional)"
-            style={{
-              width: '100%', padding: '8px 12px', background: '#13131f',
-              border: '1px solid #2d2d50', borderRadius: 10, color: '#64748b', fontSize: 13,
-              outline: 'none', boxSizing: 'border-box',
-            }}
+            className="field-input"
+            style={{ color: 'var(--text-muted)' }}
           />
         </div>
       ))}
       <button
         onClick={add}
-        style={{
-          width: '100%', padding: '12px', background: 'transparent',
-          border: '2px dashed #2d2d50', borderRadius: 12, color: '#64748b',
-          fontSize: 15, cursor: 'pointer', transition: 'all 0.2s',
+        className="btn btn-ghost btn-full"
+        style={{ borderStyle: 'dashed', marginTop: 4 }}
+        onMouseOver={e => {
+          e.currentTarget.style.borderColor = 'var(--brand)'
+          e.currentTarget.style.color = 'var(--brand-light)'
         }}
-        onMouseOver={e => { e.currentTarget.style.borderColor = '#7c3aed'; e.currentTarget.style.color = '#a78bfa' }}
-        onMouseOut={e => { e.currentTarget.style.borderColor = '#2d2d50'; e.currentTarget.style.color = '#64748b' }}
+        onMouseOut={e => {
+          e.currentTarget.style.borderColor = 'var(--border-1)'
+          e.currentTarget.style.color = 'var(--text-secondary)'
+        }}
       >+ Add Task</button>
     </div>
   )
@@ -153,7 +156,6 @@ export function CreateSession({
       if (tErr || !tasks) { setLoading(false); alert('Error: ' + tErr?.message); return }
       allTasks = tasks
     } else {
-      // Course mode: insert modules then tasks per module
       for (let mi = 0; mi < modules.length; mi++) {
         const mod = modules[mi]
         const { data: moduleRow, error: mErr } = await supabase.from('modules').insert({
@@ -172,7 +174,6 @@ export function CreateSession({
       }
     }
 
-    // Insert custom registration fields
     if (customFields.length > 0) {
       await supabase.from('session_fields').insert(
         customFields.map((f, i) => ({
@@ -187,176 +188,166 @@ export function CreateSession({
     onSessionReady(sess, allTasks)
   }
 
-  const labelStyle: React.CSSProperties = { color: '#94a3b8', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 8 }
-
   return (
-    <div style={{
-      minHeight: '100vh', background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0533 50%, #0f0f1a 100%)',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif", padding: 24, display: 'flex', justifyContent: 'center',
-    }}>
-      <div style={{ width: '100%', maxWidth: 720, paddingTop: 40, paddingBottom: 60 }}>
-        <h2 style={{ color: '#e2e8f0', fontSize: 28, fontWeight: 800, marginBottom: 4 }}>Create New Session</h2>
-        <p style={{ color: '#64748b', marginBottom: 32 }}>Set up your tasks, register fields, and launch.</p>
+    <div className="bg-base bg-space" style={{ minHeight: '100vh', padding: '40px 24px 60px', display: 'flex', justifyContent: 'center' }}>
+      <div style={{ width: '100%', maxWidth: 720 }}>
+        <h2 className="gradient-text" style={{ margin: '0 0 6px', fontSize: 28, fontWeight: 800 }}>
+          Create New Session
+        </h2>
+        <p style={{ color: 'var(--text-muted)', margin: '0 0 32px', fontSize: 14 }}>
+          Set up your tasks, register fields, and launch.
+        </p>
 
-        {/* Mode Toggle */}
-        <div style={{ display: 'flex', background: '#1e1e35', borderRadius: 12, padding: 4, marginBottom: 28, maxWidth: 320 }}>
+        {/* Mode Toggle — side-by-side cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginBottom: 28 }}>
           {(['workshop', 'course'] as SessionMode[]).map(m => (
             <button
               key={m}
               onClick={() => setMode(m)}
+              className="glass glass-hover"
               style={{
-                flex: 1, padding: '10px', border: 'none', borderRadius: 10, cursor: 'pointer',
-                background: mode === m ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'transparent',
-                color: mode === m ? '#fff' : '#64748b', fontWeight: 700, fontSize: 14,
+                padding: 20,
+                border: mode === m
+                  ? `1px solid ${m === 'workshop' ? 'rgba(124,58,237,0.5)' : 'rgba(6,182,212,0.5)'}`
+                  : '1px solid var(--border-1)',
+                borderRadius: 16,
+                cursor: 'pointer',
+                textAlign: 'center',
+                transition: 'var(--transition-base)',
+                boxShadow: mode === m
+                  ? (m === 'workshop' ? '0 0 24px rgba(124,58,237,0.2)' : '0 0 24px rgba(6,182,212,0.2)')
+                  : undefined,
               }}
             >
-              {m === 'workshop' ? '🔧 Workshop' : '📚 Course'}
+              <div style={{ fontSize: 24, marginBottom: 6 }}>{m === 'workshop' ? '🔧' : '📚'}</div>
+              <div style={{
+                fontWeight: 700,
+                fontSize: 15,
+                color: mode === m
+                  ? (m === 'workshop' ? 'var(--brand-light)' : 'var(--cyan)')
+                  : 'var(--text-secondary)',
+              }}>
+                {m === 'workshop' ? 'Workshop' : 'Course'}
+              </div>
             </button>
           ))}
         </div>
 
         {/* Title */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={labelStyle}>SESSION TITLE</label>
+        <div className="glass" style={{ padding: 20, marginBottom: 16 }}>
+          <div className="section-label">Session Title</div>
           <input
-            value={title} onChange={e => setTitle(e.target.value)}
+            className="field-input"
+            value={title}
+            onChange={e => setTitle(e.target.value)}
             placeholder="e.g. Git Workshop 101"
-            style={{
-              width: '100%', padding: '14px 16px', background: '#1e1e35',
-              border: '1px solid #2d2d50', borderRadius: 12, color: '#e2e8f0',
-              fontSize: 16, outline: 'none', boxSizing: 'border-box',
-            }}
+            style={{ fontSize: 15 }}
           />
         </div>
 
         {/* Description */}
-        <div style={{ marginBottom: 28 }}>
-          <label style={labelStyle}>DESCRIPTION (OPTIONAL)</label>
+        <div className="glass" style={{ padding: 20, marginBottom: 16 }}>
+          <div className="section-label">Description (optional)</div>
           <input
-            value={description} onChange={e => setDescription(e.target.value)}
+            className="field-input"
+            value={description}
+            onChange={e => setDescription(e.target.value)}
             placeholder="Brief description shown to students"
-            style={{
-              width: '100%', padding: '12px 16px', background: '#1e1e35',
-              border: '1px solid #2d2d50', borderRadius: 12, color: '#e2e8f0',
-              fontSize: 15, outline: 'none', boxSizing: 'border-box',
-            }}
           />
         </div>
 
         {/* Tasks (workshop mode) */}
         {mode === 'workshop' && (
-          <div style={{ marginBottom: 28 }}>
-            <label style={labelStyle}>TASKS</label>
+          <div className="glass" style={{ padding: 20, marginBottom: 16 }}>
+            <div className="section-label">Tasks</div>
             <TaskEditor tasks={workshopTasks} onChange={setWorkshopTasks} />
           </div>
         )}
 
         {/* Modules (course mode) */}
         {mode === 'course' && (
-          <div style={{ marginBottom: 28 }}>
-            <label style={labelStyle}>MODULES</label>
+          <div style={{ marginBottom: 16 }}>
+            <div className="section-label">Modules</div>
             {modules.map((mod, mi) => (
-              <div key={mi} style={{
-                background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 16, padding: 20, marginBottom: 16,
-              }}>
+              <div key={mi} className="glass" style={{ padding: 20, marginBottom: 12 }}>
                 <div style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
                   <input
-                    value={mod.title} onChange={e => updateModule(mi, 'title', e.target.value)}
+                    value={mod.title}
+                    onChange={e => updateModule(mi, 'title', e.target.value)}
                     placeholder={`Module ${mi + 1} title`}
-                    style={{
-                      flex: 1, padding: '10px 14px', background: '#13131f',
-                      border: '1px solid #3d2d6e', borderRadius: 10, color: '#e2e8f0', fontSize: 15, outline: 'none',
-                    }}
+                    className="field-input"
+                    style={{ flex: 1, borderColor: 'rgba(124,58,237,0.3)' }}
                   />
                   <input
-                    value={mod.description} onChange={e => updateModule(mi, 'description', e.target.value)}
+                    value={mod.description}
+                    onChange={e => updateModule(mi, 'description', e.target.value)}
                     placeholder="Description (optional)"
-                    style={{
-                      flex: 2, padding: '10px 14px', background: '#13131f',
-                      border: '1px solid #2d2d50', borderRadius: 10, color: '#64748b', fontSize: 13, outline: 'none',
-                    }}
+                    className="field-input"
+                    style={{ flex: 2, color: 'var(--text-muted)' }}
                   />
                 </div>
                 <TaskEditor tasks={mod.tasks} onChange={tasks => updateModuleTasks(mi, tasks)} />
               </div>
             ))}
-            <button
-              onClick={addModule}
-              style={{
-                width: '100%', padding: 12, background: 'transparent',
-                border: '2px dashed #3d2d6e', borderRadius: 12, color: '#7c3aed',
-                fontSize: 15, cursor: 'pointer',
-              }}
-            >+ Add Module</button>
+            <button className="btn btn-ghost btn-full" onClick={addModule} style={{ borderStyle: 'dashed', borderColor: 'rgba(124,58,237,0.3)' }}>
+              + Add Module
+            </button>
           </div>
         )}
 
         {/* Custom Registration Fields */}
-        <div style={{ marginBottom: 32 }}>
-          <label style={labelStyle}>CUSTOM REGISTRATION FIELDS (OPTIONAL)</label>
+        <div className="glass" style={{ padding: 20, marginBottom: 28 }}>
+          <div className="section-label">Custom Registration Fields (optional)</div>
           {customFields.map((field, i) => (
             <div key={i} style={{
-              background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 12, padding: 14, marginBottom: 10,
-              display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap',
+              background: 'var(--bg-input)',
+              border: '1px solid var(--border-1)',
+              borderRadius: 10,
+              padding: '12px 14px',
+              marginBottom: 8,
+              display: 'flex',
+              gap: 10,
+              alignItems: 'center',
+              flexWrap: 'wrap',
             }}>
               <input
                 value={field.field_label}
                 onChange={e => updateField(i, { field_label: e.target.value, field_key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
                 placeholder="Field label (e.g. GitHub Username)"
-                style={{
-                  flex: 2, padding: '8px 12px', background: '#13131f',
-                  border: '1px solid #2d2d50', borderRadius: 8, color: '#e2e8f0', fontSize: 14, outline: 'none',
-                  minWidth: 140,
-                }}
+                className="field-input"
+                style={{ flex: 2, minWidth: 140 }}
               />
               <select
                 value={field.field_type}
                 onChange={e => updateField(i, { field_type: e.target.value as FieldType })}
-                style={{
-                  padding: '8px 12px', background: '#13131f', border: '1px solid #2d2d50',
-                  borderRadius: 8, color: '#94a3b8', fontSize: 13, outline: 'none',
-                }}
+                className="field-input"
+                style={{ width: 100, flexShrink: 0 }}
               >
                 <option value="text">Text</option>
                 <option value="url">URL</option>
                 <option value="select">Select</option>
               </select>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: '#94a3b8', fontSize: 13, cursor: 'pointer' }}>
-                <input
-                  type="checkbox" checked={field.is_required}
-                  onChange={e => updateField(i, { is_required: e.target.checked })}
-                />
+              <label style={{ display: 'flex', alignItems: 'center', gap: 6, color: 'var(--text-secondary)', fontSize: 13, cursor: 'pointer', flexShrink: 0 }}>
+                <input type="checkbox" checked={field.is_required} onChange={e => updateField(i, { is_required: e.target.checked })} />
                 Required
               </label>
               <button
                 onClick={() => removeField(i)}
-                style={{
-                  background: '#ef444422', border: '1px solid #ef444444', borderRadius: 8,
-                  color: '#ef4444', padding: '6px 10px', cursor: 'pointer', fontSize: 13,
-                }}
+                className="btn btn-sm"
+                style={{ background: 'rgba(239,68,68,0.12)', color: 'var(--red)', border: '1px solid rgba(239,68,68,0.3)' }}
               >✕</button>
             </div>
           ))}
-          <button
-            onClick={addField}
-            style={{
-              padding: '10px 20px', background: 'transparent',
-              border: '1px dashed #2d2d50', borderRadius: 10, color: '#64748b',
-              fontSize: 14, cursor: 'pointer',
-            }}
-          >+ Add Registration Field</button>
+          <button className="btn btn-ghost btn-sm" onClick={addField} style={{ marginTop: 4 }}>
+            + Add Registration Field
+          </button>
         </div>
 
         <button
+          className="btn btn-primary btn-full"
           onClick={handleCreate}
           disabled={loading || !title.trim()}
-          style={{
-            width: '100%', padding: '16px', borderRadius: 16, border: 'none',
-            cursor: loading || !title.trim() ? 'not-allowed' : 'pointer',
-            background: loading || !title.trim() ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-            color: '#fff', fontSize: 17, fontWeight: 700, marginTop: 8,
-            boxShadow: loading || !title.trim() ? 'none' : '0 8px 32px #7c3aed66',
-          }}
+          style={{ padding: '18px', fontSize: 17 }}
         >
           {loading ? '⏳ Creating…' : '🚀 Launch Session'}
         </button>

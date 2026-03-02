@@ -7,10 +7,13 @@ type JoinStep = 'code' | 'register'
 
 export function StudentJoin({
   onJoined,
+  onInstructorPortal,
 }: {
   onJoined: (student: Student, session: Session, tasks: Task[]) => void
+  onInstructorPortal: () => void
 }) {
   const [step, setStep] = useState<JoinStep>('code')
+  const [isTransitioning, setIsTransitioning] = useState(false)
   const [code, setCode] = useState('')
   const [codeLoading, setCodeLoading] = useState(false)
   const [codeError, setCodeError] = useState('')
@@ -21,6 +24,7 @@ export function StudentJoin({
 
   const [name, setName] = useState('')
   const [avatar, setAvatar] = useState('🦊')
+  const [showContact, setShowContact] = useState(false)
   const [email, setEmail] = useState('')
   const [github, setGithub] = useState('')
   const [phone, setPhone] = useState('')
@@ -49,30 +53,39 @@ export function StudentJoin({
     setFoundTasks(tasks || [])
     setCustomFields(fields || [])
     setCodeLoading(false)
-    setStep('register')
+
+    // Animated transition
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setStep('register')
+      setIsTransitioning(false)
+    }, 320)
   }
 
-  // Bug #8: "Try Again" resets all state
   const handleReset = () => {
-    setStep('code')
-    setCode('')
-    setCodeError('')
-    setFoundSession(null)
-    setFoundTasks([])
-    setCustomFields([])
-    setName('')
-    setAvatar('🦊')
-    setEmail('')
-    setGithub('')
-    setPhone('')
-    setFieldValues({})
-    setRegisterError('')
+    setIsTransitioning(true)
+    setTimeout(() => {
+      setStep('code')
+      setIsTransitioning(false)
+      setCode('')
+      setCodeError('')
+      setFoundSession(null)
+      setFoundTasks([])
+      setCustomFields([])
+      setName('')
+      setAvatar('🦊')
+      setShowContact(false)
+      setEmail('')
+      setGithub('')
+      setPhone('')
+      setFieldValues({})
+      setRegisterError('')
+    }, 200)
   }
 
   const handleRegister = async () => {
     if (!name.trim() || !foundSession) return
 
-    // Validate required custom fields
     for (const field of customFields) {
       if (field.is_required && !fieldValues[field.field_key]?.trim()) {
         setRegisterError(`"${field.field_label}" is required.`)
@@ -83,7 +96,6 @@ export function StudentJoin({
     setRegisterLoading(true)
     setRegisterError('')
 
-    // Bug #17: insert level as text 'Newbie', not number 1
     const { data: student, error: sErr } = await supabase
       .from('students')
       .insert({
@@ -111,182 +123,233 @@ export function StudentJoin({
     onJoined(student, foundSession, foundTasks)
   }
 
-  const inputStyle: React.CSSProperties = {
-    width: '100%', padding: '14px 16px', background: '#13131f',
-    border: '1px solid #2d2d50', borderRadius: 12, color: '#e2e8f0',
-    fontSize: 15, outline: 'none', boxSizing: 'border-box',
-  }
-
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #0f0f1a 0%, #1a0533 50%, #0f0f1a 100%)',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      fontFamily: "'Inter', 'Segoe UI', sans-serif", padding: 24,
-    }}>
-      <div style={{ width: '100%', maxWidth: 480 }}>
-        {step === 'code' ? (
-          <>
+    <div
+      className="bg-base bg-space bg-animated"
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: 24,
+        position: 'relative',
+      }}
+    >
+      {/* Instructor Portal link */}
+      <button
+        onClick={onInstructorPortal}
+        style={{
+          position: 'absolute',
+          top: 20,
+          right: 24,
+          background: 'none',
+          border: 'none',
+          color: 'var(--text-muted)',
+          fontSize: 13,
+          fontWeight: 600,
+          cursor: 'pointer',
+          transition: 'var(--transition-fast)',
+          padding: '6px 10px',
+          borderRadius: 8,
+        }}
+        onMouseOver={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
+        onMouseOut={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+      >
+        Instructor Portal →
+      </button>
+
+      <div style={{ width: '100%', maxWidth: 440 }}>
+        {/* Step 1: Code entry */}
+        {step === 'code' && (
+          <div style={{
+            opacity: isTransitioning ? 0 : 1,
+            transform: isTransitioning ? 'translateY(-16px)' : 'translateY(0)',
+            transition: 'opacity 0.3s ease, transform 0.3s ease',
+            animation: isTransitioning ? undefined : 'slide-in-up 0.4s cubic-bezier(0.34,1.56,0.64,1)',
+          }}>
             <div style={{ textAlign: 'center', marginBottom: 40 }}>
-              <div style={{ fontSize: 52, marginBottom: 12 }}>🎮</div>
-              <h2 style={{ color: '#e2e8f0', fontSize: 28, fontWeight: 800, margin: 0 }}>Join Workshop</h2>
-              <p style={{ color: '#64748b', marginTop: 8 }}>Enter the code from your instructor.</p>
+              <div style={{
+                fontSize: 56,
+                marginBottom: 16,
+                textShadow: '0 0 40px rgba(124,58,237,0.6)',
+                display: 'block',
+              }}>⚡</div>
+              <h1 className="gradient-text" style={{
+                margin: '0 0 10px',
+                fontSize: 'clamp(2.2rem,5vw,3rem)',
+                fontWeight: 900,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1,
+              }}>WorkshopFlow</h1>
+              <p style={{
+                color: 'var(--text-secondary)',
+                margin: 0,
+                fontSize: 15,
+              }}>Enter your join code to get started</p>
             </div>
 
-            <div style={{ background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 20, padding: 28 }}>
-              <label style={{ color: '#94a3b8', fontSize: 13, fontWeight: 600, display: 'block', marginBottom: 8 }}>JOIN CODE</label>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <input
+                className="code-input"
                 value={code}
-                onChange={e => setCode(e.target.value.toUpperCase())}
+                onChange={e => { setCode(e.target.value.toUpperCase()); setCodeError('') }}
                 onKeyDown={e => e.key === 'Enter' && handleCodeSubmit()}
-                placeholder="e.g. XK9F2M"
+                placeholder="XXXXXX"
                 maxLength={8}
-                style={{
-                  ...inputStyle,
-                  color: '#a78bfa', fontSize: 28, fontWeight: 900,
-                  letterSpacing: 8, textAlign: 'center', marginBottom: 16,
-                }}
+                autoFocus
               />
-              {codeError && (
-                <div style={{
-                  background: '#ef444422', borderRadius: 10, padding: '10px 14px',
-                  color: '#fca5a5', fontSize: 14, marginBottom: 16,
-                }}>{codeError}</div>
-              )}
+
+              {codeError && <div className="error-box">{codeError}</div>}
+
               <button
+                className="btn btn-primary btn-full"
                 onClick={handleCodeSubmit}
                 disabled={codeLoading || !code.trim()}
-                style={{
-                  width: '100%', padding: '14px', borderRadius: 12, border: 'none',
-                  background: codeLoading || !code.trim() ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                  color: '#fff', fontSize: 16, fontWeight: 700,
-                  cursor: codeLoading || !code.trim() ? 'not-allowed' : 'pointer',
-                  boxShadow: codeLoading || !code.trim() ? 'none' : '0 8px 24px #7c3aed66',
-                }}
-              >{codeLoading ? '⏳ Checking…' : 'Next →'}</button>
+                style={{ padding: '14px', fontSize: 16, marginTop: 4 }}
+              >
+                {codeLoading ? '⏳ Checking…' : 'Continue →'}
+              </button>
             </div>
-          </>
-        ) : (
-          <>
-            <div style={{ textAlign: 'center', marginBottom: 32 }}>
-              <div style={{ fontSize: 36, marginBottom: 8 }}>👋</div>
-              <h2 style={{ color: '#e2e8f0', fontSize: 24, fontWeight: 800, margin: 0 }}>
-                {foundSession?.title}
-              </h2>
-              <p style={{ color: '#64748b', marginTop: 4 }}>Fill in your details to join.</p>
+          </div>
+        )}
+
+        {/* Step 2: Character creation */}
+        {step === 'register' && (
+          <div style={{
+            opacity: isTransitioning ? 0 : 1,
+            transform: isTransitioning ? 'translateY(16px)' : 'translateY(0)',
+            transition: 'opacity 0.25s ease, transform 0.25s ease',
+            animation: isTransitioning ? undefined : 'slide-in-up 0.35s cubic-bezier(0.34,1.56,0.64,1)',
+          }}>
+            <div style={{ textAlign: 'center', marginBottom: 24 }}>
+              <div style={{ fontSize: 28, marginBottom: 6 }}>👋 Joining:</div>
+              <h2 className="gradient-text" style={{
+                margin: 0, fontSize: 22, fontWeight: 800,
+              }}>{foundSession?.title}</h2>
             </div>
 
-            <div style={{ background: '#1e1e35', border: '1px solid #2d2d50', borderRadius: 20, padding: 28 }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {/* Name */}
-                <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                    YOUR NAME *
-                  </label>
-                  <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah" style={inputStyle} />
-                </div>
-
-                {/* Avatar */}
-                <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 8 }}>
-                    PICK YOUR AVATAR
-                  </label>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                    {AVATARS.map(a => (
-                      <button
-                        key={a}
-                        onClick={() => setAvatar(a)}
-                        style={{
-                          width: 44, height: 44, borderRadius: 10,
-                          border: a === avatar ? '2px solid #a78bfa' : '2px solid #2d2d50',
-                          background: a === avatar ? '#a78bfa22' : 'transparent',
-                          fontSize: 22, cursor: 'pointer', transition: 'all 0.15s',
-                          boxShadow: a === avatar ? '0 0 12px #a78bfa55' : 'none',
-                        }}
-                      >{a}</button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Optional fields */}
-                <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                    EMAIL (OPTIONAL)
-                  </label>
-                  <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                    GITHUB USERNAME (OPTIONAL)
-                  </label>
-                  <input value={github} onChange={e => setGithub(e.target.value)} placeholder="your-handle" style={inputStyle} />
-                </div>
-                <div>
-                  <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                    PHONE (OPTIONAL)
-                  </label>
-                  <input type="tel" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 555 000 0000" style={inputStyle} />
-                </div>
-
-                {/* Custom fields */}
-                {customFields.map(field => (
-                  <div key={field.id}>
-                    <label style={{ color: '#94a3b8', fontSize: 12, fontWeight: 600, display: 'block', marginBottom: 6 }}>
-                      {field.field_label.toUpperCase()}{field.is_required ? ' *' : ' (OPTIONAL)'}
-                    </label>
-                    {field.field_type === 'select' ? (
-                      <select
-                        value={fieldValues[field.field_key] || ''}
-                        onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
-                        style={{ ...inputStyle, color: fieldValues[field.field_key] ? '#e2e8f0' : '#4b5563' }}
-                      >
-                        <option value="">Select…</option>
-                        {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
-                      </select>
-                    ) : (
-                      <input
-                        type={field.field_type === 'url' ? 'url' : 'text'}
-                        value={fieldValues[field.field_key] || ''}
-                        onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
-                        placeholder={field.field_label}
-                        style={inputStyle}
-                      />
-                    )}
-                  </div>
-                ))}
-
-                {registerError && (
-                  <div style={{ background: '#ef444422', borderRadius: 10, padding: '10px 14px', color: '#fca5a5', fontSize: 14 }}>
-                    {registerError}
-                  </div>
-                )}
-
-                <button
-                  onClick={handleRegister}
-                  disabled={registerLoading || !name.trim()}
-                  style={{
-                    width: '100%', padding: '14px', borderRadius: 12, border: 'none',
-                    background: registerLoading || !name.trim() ? '#374151' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                    color: '#fff', fontSize: 16, fontWeight: 700,
-                    cursor: registerLoading || !name.trim() ? 'not-allowed' : 'pointer',
-                    boxShadow: registerLoading || !name.trim() ? 'none' : '0 8px 24px #7c3aed66',
-                  }}
-                >
-                  {registerLoading ? '⏳ Joining…' : `${avatar} Enter Workshop`}
-                </button>
-
-                {/* Bug #8: Try Again resets all state */}
-                <button
-                  onClick={handleReset}
-                  style={{
-                    width: '100%', padding: '10px', borderRadius: 10,
-                    background: 'none', border: '1px solid #2d2d50',
-                    color: '#64748b', fontSize: 14, cursor: 'pointer',
-                  }}
-                >← Try a different code</button>
+            <div className="glass glass-raised" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {/* Name */}
+              <div>
+                <label className="field-label">Your Name *</label>
+                <input
+                  className="field-input"
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder="e.g. Sarah"
+                  autoFocus
+                />
               </div>
+
+              {/* Avatar */}
+              <div>
+                <label className="field-label">Pick Your Avatar</label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                  {AVATARS.map(a => (
+                    <button
+                      key={a}
+                      className={`avatar-btn${a === avatar ? ' selected' : ''}`}
+                      onClick={() => setAvatar(a)}
+                    >{a}</button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Required custom fields */}
+              {customFields.filter(f => f.is_required).map(field => (
+                <div key={field.id}>
+                  <label className="field-label">{field.field_label} *</label>
+                  {field.field_type === 'select' ? (
+                    <select
+                      className="field-input"
+                      value={fieldValues[field.field_key] || ''}
+                      onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+                    >
+                      <option value="">Select…</option>
+                      {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.field_type === 'url' ? 'url' : 'text'}
+                      className="field-input"
+                      value={fieldValues[field.field_key] || ''}
+                      onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+                      placeholder={field.field_label}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {/* Optional contact info toggle */}
+              <button
+                className="btn btn-ghost btn-full btn-sm"
+                onClick={() => setShowContact(v => !v)}
+                style={{ justifyContent: 'flex-start' }}
+              >
+                {showContact ? '▾' : '▸'} {showContact ? 'Hide' : 'Add'} contact info (optional)
+              </button>
+
+              {showContact && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, animation: 'slide-in-up 0.25s ease' }}>
+                  <div>
+                    <label className="field-label">Email</label>
+                    <input type="email" className="field-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+                  </div>
+                  <div>
+                    <label className="field-label">GitHub Username</label>
+                    <input className="field-input" value={github} onChange={e => setGithub(e.target.value)} placeholder="your-handle" />
+                  </div>
+                  <div>
+                    <label className="field-label">Phone</label>
+                    <input type="tel" className="field-input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 555 000 0000" />
+                  </div>
+                </div>
+              )}
+
+              {/* Optional custom fields */}
+              {customFields.filter(f => !f.is_required).map(field => (
+                <div key={field.id}>
+                  <label className="field-label">{field.field_label} (optional)</label>
+                  {field.field_type === 'select' ? (
+                    <select
+                      className="field-input"
+                      value={fieldValues[field.field_key] || ''}
+                      onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+                    >
+                      <option value="">Select…</option>
+                      {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      type={field.field_type === 'url' ? 'url' : 'text'}
+                      className="field-input"
+                      value={fieldValues[field.field_key] || ''}
+                      onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
+                      placeholder={field.field_label}
+                    />
+                  )}
+                </div>
+              ))}
+
+              {registerError && <div className="error-box">{registerError}</div>}
+
+              <button
+                className="btn btn-primary btn-full"
+                onClick={handleRegister}
+                disabled={registerLoading || !name.trim()}
+                style={{ padding: '14px', fontSize: 16 }}
+              >
+                {registerLoading ? '⏳ Joining…' : `${avatar} Enter Workshop`}
+              </button>
+
+              <button
+                className="btn btn-ghost btn-full btn-sm"
+                onClick={handleReset}
+              >
+                ← Try a different code
+              </button>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>
