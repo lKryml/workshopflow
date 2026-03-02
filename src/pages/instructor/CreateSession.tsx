@@ -6,11 +6,11 @@ import type { FieldType, ModuleInput, Session, SessionFieldInput, Task, TaskInpu
 type SessionMode = 'workshop' | 'course'
 
 const DEFAULT_TASKS: TaskInput[] = [
-  { title: 'تثبيت Node.js و npm', description: 'حمّل من nodejs.org وتحقق بتشغيل node --version', xp: 100 },
-  { title: 'إنشاء مستودع Git', description: 'أنشئ مجلداً جديداً ونفّذ git init بداخله', xp: 150 },
-  { title: 'إنشاء أول فرع', description: 'نفّذ git checkout -b feature/your-name', xp: 150 },
-  { title: 'إنشاء أول كوميت', description: 'أنشئ ملفاً، ثم git add . ثم git commit -m "first commit"', xp: 200 },
-  { title: 'رفع الكود للـ Remote', description: 'اضبط remote origin ونفّذ git push -u origin main', xp: 250 },
+  { title: 'Install Node.js & npm', description: 'Download from nodejs.org and verify by running node --version', xp: 100 },
+  { title: 'Create a Git repository', description: 'Create a new folder and run git init inside it', xp: 150 },
+  { title: 'Create your first branch', description: 'Run git checkout -b feature/your-name', xp: 150 },
+  { title: 'Make your first commit', description: 'Create a file, then git add . then git commit -m "first commit"', xp: 200 },
+  { title: 'Push code to Remote', description: 'Set remote origin and run git push -u origin main', xp: 250 },
 ]
 
 const inputCls = 'w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all text-sm'
@@ -33,7 +33,7 @@ function TaskEditor({ tasks, onChange }: { tasks: TaskInput[]; onChange: (t: Tas
             <input
               value={task.title}
               onChange={e => update(i, 'title', e.target.value)}
-              placeholder="عنوان المهمة"
+              placeholder="Task title"
               className={`${inputCls} flex-1 py-2`}
             />
             <div className="flex items-center gap-1.5 flex-shrink-0">
@@ -55,7 +55,7 @@ function TaskEditor({ tasks, onChange }: { tasks: TaskInput[]; onChange: (t: Tas
           <input
             value={task.description}
             onChange={e => update(i, 'description', e.target.value)}
-            placeholder="تلميح للطلاب (اختياري)"
+              placeholder="Hint for students (optional)"
             className={`${inputCls} py-2 text-neutral-500`}
           />
         </div>
@@ -64,7 +64,7 @@ function TaskEditor({ tasks, onChange }: { tasks: TaskInput[]; onChange: (t: Tas
         onClick={add}
         className="w-full py-2.5 border border-dashed border-neutral-700 hover:border-orange-500/40 hover:text-orange-400 text-neutral-600 rounded-md text-sm transition-colors"
       >
-        + إضافة مهمة
+        + Add Task
       </button>
     </div>
   )
@@ -72,18 +72,18 @@ function TaskEditor({ tasks, onChange }: { tasks: TaskInput[]; onChange: (t: Tas
 
 export function CreateSession({ onSessionReady }: { onSessionReady: (session: Session, tasks: Task[]) => void }) {
   const [mode, setMode] = useState<SessionMode>('workshop')
-  const [title, setTitle] = useState('ورشة Git من الصفر')
+  const [title, setTitle] = useState('Git Workshop from Scratch')
   const [description, setDescription] = useState('')
   const [customCode, setCustomCode] = useState('')
   const [workshopTasks, setWorkshopTasks] = useState<TaskInput[]>(DEFAULT_TASKS)
   const [modules, setModules] = useState<ModuleInput[]>([
-    { title: 'الوحدة الأولى', description: '', tasks: [{ title: '', description: '', xp: 100 }] },
+    { title: 'Module 1', description: '', tasks: [{ title: '', description: '', xp: 100 }] },
   ])
   const [customFields, setCustomFields] = useState<SessionFieldInput[]>([])
   const [loading, setLoading] = useState(false)
 
   const addModule = () =>
-    setModules(p => [...p, { title: `الوحدة ${p.length + 1}`, description: '', tasks: [{ title: '', description: '', xp: 100 }] }])
+    setModules(p => [...p, { title: `Module ${p.length + 1}`, description: '', tasks: [{ title: '', description: '', xp: 100 }] }])
 
   const updateModule = (i: number, field: keyof Omit<ModuleInput, 'tasks'>, value: string) =>
     setModules(p => p.map((m, idx) => idx === i ? { ...m, [field]: value } : m))
@@ -110,9 +110,10 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
       title, description: description || null,
       join_code: code, session_type: mode,
       instructor_id: authUser.user?.id ?? null,
+      is_active: false,
     }).select().single()
 
-    if (sErr || !sess) { setLoading(false); alert('خطأ: ' + sErr?.message); return }
+    if (sErr || !sess) { setLoading(false); alert('Error: ' + sErr?.message); return }
 
     let allTasks: Task[] = []
 
@@ -123,7 +124,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
           task_order: i + 1, xp_reward: t.xp, is_locked: i !== 0,
         }))
       ).select()
-      if (tErr || !tasks) { setLoading(false); alert('خطأ: ' + tErr?.message); return }
+      if (tErr || !tasks) { setLoading(false); alert('Error: ' + tErr?.message); return }
       allTasks = tasks
     } else {
       for (let mi = 0; mi < modules.length; mi++) {
@@ -158,7 +159,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[#050505]">
       {/* Subtle bg */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 right-0 w-[500px] h-[400px] bg-orange-600/4 rounded-full blur-[140px]" />
@@ -172,8 +173,8 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
               New Session
             </span>
           </div>
-          <h1 className="text-3xl font-bold text-white tracking-tight mb-2">إنشاء جلسة جديدة</h1>
-          <p className="text-neutral-500 text-sm">حدّد المهام وبيانات التسجيل ثم أطلق الجلسة</p>
+          <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Create New Session</h1>
+          <p className="text-neutral-500 text-sm">Define tasks and registration fields, then launch the session</p>
         </div>
 
         {/* Mode Toggle */}
@@ -193,7 +194,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
               )}
               <div className="text-2xl mb-2">{m === 'workshop' ? '🔧' : '📚'}</div>
               <div className={`font-bold text-sm mb-0.5 ${mode === m ? 'text-white' : 'text-neutral-400'}`}>
-                {m === 'workshop' ? 'ورشة عمل' : 'دورة تدريبية'}
+                {m === 'workshop' ? 'Workshop' : 'Course'}
               </div>
               <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider">
                 {m === 'workshop' ? 'Sequential Tasks' : 'Modules + Tasks'}
@@ -208,36 +209,36 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
           <div className="flex items-center gap-2 mb-5">
             <div className="w-1 h-6 bg-orange-500 rounded-full flex-shrink-0" />
             <div>
-              <div className="text-sm font-bold text-white">معلومات الجلسة</div>
+              <div className="text-sm font-bold text-white">Session Info</div>
               <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Session Info</div>
             </div>
           </div>
           <div className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                عنوان الجلسة <span className="text-orange-500">*</span>
+                Session Title <span className="text-orange-500">*</span>
               </label>
-              <input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder="مثال: ورشة Git من الصفر" />
+              <input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Git Workshop from Scratch" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                الوصف (اختياري)
+                Description (optional)
               </label>
-              <input className={inputCls} value={description} onChange={e => setDescription(e.target.value)} placeholder="وصف مختصر يظهر للطلاب" />
+              <input className={inputCls} value={description} onChange={e => setDescription(e.target.value)} placeholder="Short description shown to students" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                كود الانضمام المخصص <span className="text-neutral-600 font-normal normal-case">(اختياري)</span>
+                Custom Join Code <span className="text-neutral-600 font-normal normal-case">(optional)</span>
               </label>
               <input
                 className={inputCls}
                 value={customCode}
                 onChange={e => setCustomCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10))}
-                placeholder="مثال: GIT101  —  اتركه فارغًا للكود التلقائي"
+                placeholder="e.g. GIT101  —  leave blank for auto-generated code"
                 maxLength={10}
               />
               {customCode.length > 0 && customCode.length < 4 && (
-                <p className="text-amber-500 text-xs mt-1.5 font-mono">الحد الأدنى 4 أحرف</p>
+                <p className="text-amber-500 text-xs mt-1.5 font-mono">Minimum 4 characters</p>
               )}
             </div>
           </div>
@@ -249,7 +250,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
             <div className="flex items-center gap-2 mb-5">
               <div className="w-1 h-6 bg-orange-500 rounded-full flex-shrink-0" />
               <div>
-                <div className="text-sm font-bold text-white">المهام</div>
+                <div className="text-sm font-bold text-white">Tasks</div>
                 <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Tasks</div>
               </div>
             </div>
@@ -263,7 +264,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
             <div className="flex items-center gap-2 mb-3">
               <div className="w-1 h-6 bg-orange-500 rounded-full flex-shrink-0" />
               <div>
-                <div className="text-sm font-bold text-white">الوحدات</div>
+                <div className="text-sm font-bold text-white">Modules</div>
                 <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Modules</div>
               </div>
             </div>
@@ -273,13 +274,13 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
                   <input
                     value={mod.title}
                     onChange={e => updateModule(mi, 'title', e.target.value)}
-                    placeholder={`الوحدة ${mi + 1}`}
+                    placeholder={`Module ${mi + 1}`}
                     className={`${inputCls} flex-1`}
                   />
                   <input
                     value={mod.description}
                     onChange={e => updateModule(mi, 'description', e.target.value)}
-                    placeholder="الوصف (اختياري)"
+                    placeholder="Description (optional)"
                     className={`${inputCls} flex-2 text-neutral-500`}
                   />
                 </div>
@@ -290,7 +291,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
               onClick={addModule}
               className="w-full py-2.5 border border-dashed border-orange-500/20 hover:border-orange-500/40 text-neutral-600 hover:text-orange-400 rounded-xl text-sm transition-colors"
             >
-              + إضافة وحدة
+              + Add Module
             </button>
           </div>
         )}
@@ -301,7 +302,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
             <div className="flex items-center gap-2">
               <div className="w-1 h-6 bg-orange-500 rounded-full flex-shrink-0" />
               <div>
-                <div className="text-sm font-bold text-white">بيانات التسجيل المخصصة</div>
+                <div className="text-sm font-bold text-white">Custom Fields</div>
                 <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">Custom Fields</div>
               </div>
             </div>
@@ -309,12 +310,12 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
               onClick={addField}
               className="text-xs font-mono text-orange-500/70 hover:text-orange-400 transition-colors uppercase tracking-wider"
             >
-              + إضافة حقل
+              + Add Field
             </button>
           </div>
 
           {customFields.length === 0 ? (
-            <p className="text-neutral-700 text-sm text-center py-2 font-mono">لا توجد حقول مخصصة</p>
+            <p className="text-neutral-700 text-sm text-center py-2 font-mono">No custom fields</p>
           ) : (
             <div className="space-y-2">
               {customFields.map((field, i) => (
@@ -322,7 +323,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
                   <input
                     value={field.field_label}
                     onChange={e => updateField(i, { field_label: e.target.value, field_key: e.target.value.toLowerCase().replace(/\s+/g, '_') })}
-                    placeholder="اسم الحقل"
+                    placeholder="Field name"
                     className="flex-1 bg-transparent text-sm text-neutral-200 placeholder-neutral-600 outline-none"
                   />
                   <select
@@ -330,13 +331,13 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
                     onChange={e => updateField(i, { field_type: e.target.value as FieldType })}
                     className="bg-neutral-900 border border-neutral-700 rounded text-neutral-400 text-xs px-2 py-1.5 outline-none"
                   >
-                    <option value="text">نص</option>
-                    <option value="url">رابط</option>
-                    <option value="select">قائمة</option>
+                    <option value="text">Text</option>
+                    <option value="url">URL</option>
+                    <option value="select">Select</option>
                   </select>
                   <label className="flex items-center gap-1.5 text-neutral-600 text-xs cursor-pointer whitespace-nowrap">
                     <input type="checkbox" checked={field.is_required} onChange={e => updateField(i, { is_required: e.target.checked })} />
-                    مطلوب
+                    Required
                   </label>
                   <button onClick={() => removeField(i)} className="text-red-500/50 hover:text-red-400 transition-colors text-sm">✕</button>
                 </div>
@@ -351,7 +352,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
           disabled={loading || !title.trim()}
           className="w-full bg-orange-600 hover:bg-orange-500 disabled:opacity-40 disabled:cursor-not-allowed text-white font-bold py-5 rounded-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-base shadow-[0_0_24px_rgba(234,88,12,0.3)] hover:shadow-[0_0_32px_rgba(234,88,12,0.4)] flex items-center justify-center gap-2"
         >
-          {loading ? 'جارٍ الإنشاء...' : '🚀 إطلاق الجلسة'}
+          {loading ? 'Creating...' : '🚀 Launch Session'}
         </button>
       </div>
     </div>

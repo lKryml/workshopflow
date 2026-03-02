@@ -40,7 +40,7 @@ export function InstructorAuth({
   }
 
   const handleMagicLink = async () => {
-    if (!email.trim()) { setError('أدخل بريدك الإلكتروني أولاً'); return }
+    if (!email.trim()) { setError('Enter your email first'); return }
     setLoading(true); setError('')
     const { error: err } = await supabase.auth.signInWithOtp({ email })
     setLoading(false)
@@ -50,7 +50,6 @@ export function InstructorAuth({
 
   return (
     <div
-      dir="rtl"
       className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 relative"
     >
       {/* Subtle bg glow */}
@@ -63,7 +62,7 @@ export function InstructorAuth({
         onClick={onBack}
         className="absolute top-5 right-6 text-xs font-mono text-neutral-500 hover:text-neutral-300 transition-colors uppercase tracking-widest flex items-center gap-1"
       >
-        ← انضمام لورشة
+        ← Back
       </button>
 
       <div className="w-full max-w-md z-10 animate-slide-up">
@@ -72,9 +71,9 @@ export function InstructorAuth({
           <div className="inline-flex items-center justify-center w-12 h-12 bg-neutral-900 border border-neutral-800 rounded-full mb-4">
             <span className="text-xl">🎓</span>
           </div>
-          <h1 className="text-2xl font-bold text-white mb-1">بوابة المدرب</h1>
+          <h1 className="text-2xl font-bold text-white mb-1">Instructor Portal</h1>
           <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
-            Instructor Portal
+            WorkshopFlow
           </p>
         </div>
 
@@ -90,7 +89,7 @@ export function InstructorAuth({
                   : 'border-transparent text-neutral-500 hover:text-neutral-300'
               }`}
             >
-              {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
+              {t === 'login' ? 'Sign In' : 'Create Account'}
             </button>
           ))}
         </div>
@@ -102,16 +101,16 @@ export function InstructorAuth({
           {magicSent ? (
             <div className="text-center py-4">
               <div className="text-4xl mb-4">📬</div>
-              <p className="text-orange-400 font-bold text-base mb-2">تحقق من بريدك الإلكتروني</p>
+              <p className="text-orange-400 font-bold text-base mb-2">Check your email</p>
               <p className="text-neutral-500 text-sm">
-                أرسلنا رابط الدخول إلى{' '}
+                We sent a sign-in link to{' '}
                 <span className="font-mono text-neutral-300">{email}</span>
               </p>
               <button
                 onClick={() => setMagicSent(false)}
                 className="mt-6 text-xs font-mono text-neutral-500 hover:text-neutral-300 transition-colors uppercase tracking-widest"
               >
-                ← العودة
+                ← Back
               </button>
             </div>
           ) : (
@@ -119,7 +118,7 @@ export function InstructorAuth({
               {tab === 'register' && (
                 <div>
                   <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                    الاسم <span className="text-orange-500">*</span>
+                    Name <span className="text-orange-500">*</span>
                   </label>
                   <input
                     className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all font-mono text-sm"
@@ -132,7 +131,7 @@ export function InstructorAuth({
 
               <div>
                 <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                  البريد الإلكتروني <span className="text-orange-500">*</span>
+                  Email <span className="text-orange-500">*</span>
                 </label>
                 <input
                   type="email"
@@ -149,7 +148,7 @@ export function InstructorAuth({
 
               <div>
                 <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
-                  كلمة المرور <span className="text-orange-500">*</span>
+                  Password <span className="text-orange-500">*</span>
                 </label>
                 <input
                   type="password"
@@ -174,11 +173,11 @@ export function InstructorAuth({
                 disabled={loading}
               >
                 {loading ? (
-                  <>جاري التحقق...</>
+                  <>Verifying...</>
                 ) : tab === 'login' ? (
-                  <>تسجيل الدخول</>
+                  <>Sign In</>
                 ) : (
-                  <>إنشاء الحساب</>
+                  <>Create Account</>
                 )}
               </button>
 
@@ -187,7 +186,7 @@ export function InstructorAuth({
                 onClick={handleMagicLink}
                 disabled={loading}
               >
-                🔗 إرسال رابط الدخول
+                🔗 Send Magic Link
               </button>
             </div>
           )}

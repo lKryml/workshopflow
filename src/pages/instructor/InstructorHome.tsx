@@ -39,7 +39,7 @@ export function InstructorHome({
   }
 
   return (
-    <div dir="rtl" className="min-h-screen bg-[#050505]">
+    <div className="min-h-screen bg-[#050505]">
       {/* Top bar */}
       <div className="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-sm border-b border-neutral-900 px-6 h-14 flex items-center gap-3">
         <span className="text-lg">⚡</span>
@@ -53,7 +53,7 @@ export function InstructorHome({
           onClick={handleSignOut}
           className="text-xs font-mono text-neutral-500 hover:text-neutral-300 transition-colors uppercase tracking-widest"
         >
-          خروج
+          Sign Out
         </button>
       </div>
 
@@ -66,28 +66,28 @@ export function InstructorHome({
                 WorkshopFlow
               </span>
             </div>
-            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">جلساتك</h1>
-            <p className="text-neutral-500 text-sm">أنشئ ورشة جديدة أو افتح جلسة سابقة</p>
+            <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Your Sessions</h1>
+            <p className="text-neutral-500 text-sm">Create a new workshop or open an existing session</p>
           </div>
           <button
             onClick={onNewWorkshop}
             className="bg-neutral-100 hover:bg-white text-black font-bold px-5 py-2.5 rounded-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm flex items-center gap-2"
           >
             <span>+</span>
-            <span>ورشة جديدة</span>
+            <span>New Session</span>
           </button>
         </div>
 
         {/* Sessions */}
         {loading ? (
           <div className="text-center text-neutral-600 py-20 font-mono text-sm">
-            جارٍ التحميل...
+            Loading...
           </div>
         ) : sessions.length === 0 ? (
           <div className="bg-[#0a0a0a] border border-dashed border-neutral-800 rounded-xl p-16 text-center">
             <div className="text-5xl mb-4">🎓</div>
-            <p className="text-neutral-500 text-base mb-1">لا توجد جلسات بعد</p>
-            <p className="text-neutral-700 text-sm font-mono">أنشئ ورشتك الأولى للبدء</p>
+            <p className="text-neutral-500 text-base mb-1">No sessions yet</p>
+            <p className="text-neutral-700 text-sm font-mono">Create your first workshop to get started</p>
           </div>
         ) : (
           <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl overflow-hidden">
@@ -112,11 +112,11 @@ export function InstructorHome({
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">
-                      {s.session_type === 'course' ? 'دورة تدريبية' : 'ورشة عمل'}
+                      {s.session_type === 'course' ? 'Course' : 'Workshop'}
                     </span>
                     <span className="text-neutral-800">·</span>
                     <span className="text-[10px] text-neutral-700 font-mono">
-                      {new Date(s.created_at).toLocaleDateString('ar-SA', {
+                      {new Date(s.created_at).toLocaleDateString('en-US', {
                         year: 'numeric', month: 'short', day: 'numeric',
                       })}
                     </span>
@@ -128,8 +128,8 @@ export function InstructorHome({
                   onClick={() => handleOpen(s)}
                   className="flex-shrink-0 bg-neutral-100 hover:bg-white text-black font-bold px-4 py-2 rounded-sm transition-all hover:-translate-y-0.5 text-xs flex items-center gap-1.5"
                 >
-                  فتح لوحة التحكم
-                  <span className="text-neutral-400">←</span>
+                  Open Dashboard
+                  <span className="text-neutral-400">→</span>
                 </button>
               </div>
             ))}

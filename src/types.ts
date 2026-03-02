@@ -12,6 +12,7 @@ export type Route =
   | 'instructor-create'
   | 'instructor-dashboard'
   | 'student-join'
+  | 'student-waiting'
   | 'student-view'
 
 // ─── Database row types ────────────────────────────────────────────────────────

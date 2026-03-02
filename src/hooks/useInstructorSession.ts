@@ -22,6 +22,7 @@ export type InstructorSessionActions = {
   addResource: (resource: Omit<Resource, 'id' | 'created_at' | 'resource_order'>) => Promise<void>
   removeResource: (resourceId: string) => Promise<void>
   exportCSV: () => void
+  startSession: () => Promise<void>
 }
 
 export function useInstructorSession(
@@ -149,9 +150,13 @@ export function useInstructorSession(
     exportStudentsToCSV(students, completions, tasks, session?.title ?? 'session')
   }, [students, completions, tasks, session])
 
+  const startSession = useCallback(async () => {
+    await supabase.from('sessions').update({ is_active: true }).eq('id', sessionId)
+  }, [sessionId])
+
   return {
     session, tasks, students, completions, helpQueue, resources, isConnected,
-    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV,
+    toggleLock, sendBroadcast, pingStudent, resolveHelp, addResource, removeResource, exportCSV, startSession,
   }
 }
 
