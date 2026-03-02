@@ -40,7 +40,7 @@ export function InstructorAuth({
   }
 
   const handleMagicLink = async () => {
-    if (!email.trim()) { setError('Enter your email first'); return }
+    if (!email.trim()) { setError('أدخل بريدك الإلكتروني أولاً'); return }
     setLoading(true); setError('')
     const { error: err } = await supabase.auth.signInWithOtp({ email })
     setLoading(false)
@@ -50,136 +50,144 @@ export function InstructorAuth({
 
   return (
     <div
-      className="bg-base bg-space bg-animated"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        position: 'relative',
-      }}
+      dir="rtl"
+      className="min-h-screen bg-[#050505] flex flex-col items-center justify-center p-6 relative"
     >
-      {/* Back button */}
+      {/* Subtle bg glow */}
+      <div className="fixed inset-0 pointer-events-none">
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] bg-orange-600/5 rounded-full blur-[120px]" />
+      </div>
+
+      {/* Back */}
       <button
-        className="btn btn-ghost btn-sm"
         onClick={onBack}
-        style={{ position: 'absolute', top: 20, left: 24 }}
+        className="absolute top-5 right-6 text-xs font-mono text-neutral-500 hover:text-neutral-300 transition-colors uppercase tracking-widest flex items-center gap-1"
       >
-        ← Join a workshop
+        ← انضمام لورشة
       </button>
 
-      <div style={{ width: '100%', maxWidth: 420, animation: 'slide-in-up 0.4s cubic-bezier(0.34,1.56,0.64,1)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🎓</div>
-          <h2 style={{ margin: '0 0 6px', fontSize: 26, fontWeight: 800 }}>Instructor Portal</h2>
-          <p style={{ color: 'var(--text-secondary)', margin: 0, fontSize: 14 }}>
-            Sign in to manage your workshops.
+      <div className="w-full max-w-md z-10 animate-slide-up">
+        {/* Header */}
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center justify-center w-12 h-12 bg-neutral-900 border border-neutral-800 rounded-full mb-4">
+            <span className="text-xl">🎓</span>
+          </div>
+          <h1 className="text-2xl font-bold text-white mb-1">بوابة المدرب</h1>
+          <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
+            Instructor Portal
           </p>
         </div>
 
-        {/* Underline tab switcher */}
-        <div style={{
-          display: 'flex',
-          borderBottom: '1px solid var(--border-1)',
-          marginBottom: 24,
-          gap: 0,
-        }}>
+        {/* Tab Switcher */}
+        <div className="flex border-b border-neutral-800 mb-6">
           {(['login', 'register'] as AuthTab[]).map(t => (
             <button
               key={t}
               onClick={() => { setTab(t); setError('') }}
-              style={{
-                flex: 1,
-                padding: '10px 0',
-                border: 'none',
-                borderBottom: tab === t ? '2px solid var(--brand)' : '2px solid transparent',
-                background: 'transparent',
-                color: tab === t ? 'var(--text-primary)' : 'var(--text-muted)',
-                fontWeight: tab === t ? 700 : 500,
-                fontSize: 14,
-                cursor: 'pointer',
-                transition: 'var(--transition-fast)',
-                marginBottom: -1,
-              }}
+              className={`flex-1 pb-3 text-sm font-semibold transition-all border-b-2 -mb-px ${
+                tab === t
+                  ? 'border-orange-500 text-white'
+                  : 'border-transparent text-neutral-500 hover:text-neutral-300'
+              }`}
             >
-              {t === 'login' ? 'Sign In' : 'Register'}
+              {t === 'login' ? 'تسجيل الدخول' : 'إنشاء حساب'}
             </button>
           ))}
         </div>
 
-        <div className="glass glass-raised" style={{ padding: 28 }}>
+        {/* Card */}
+        <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl p-8 relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-orange-500/40 to-transparent" />
+
           {magicSent ? (
-            <div style={{ textAlign: 'center', padding: '16px 0' }}>
-              <div style={{ fontSize: 40, marginBottom: 12 }}>📬</div>
-              <p style={{ color: 'var(--brand-light)', fontWeight: 700, fontSize: 16, margin: '0 0 8px' }}>
-                Check your email!
-              </p>
-              <p style={{ color: 'var(--text-muted)', fontSize: 14, margin: 0 }}>
-                We sent a magic link to{' '}
-                <strong style={{ color: 'var(--text-primary)' }}>{email}</strong>
+            <div className="text-center py-4">
+              <div className="text-4xl mb-4">📬</div>
+              <p className="text-orange-400 font-bold text-base mb-2">تحقق من بريدك الإلكتروني</p>
+              <p className="text-neutral-500 text-sm">
+                أرسلنا رابط الدخول إلى{' '}
+                <span className="font-mono text-neutral-300">{email}</span>
               </p>
               <button
-                className="btn btn-ghost btn-sm"
                 onClick={() => setMagicSent(false)}
-                style={{ marginTop: 20 }}
+                className="mt-6 text-xs font-mono text-neutral-500 hover:text-neutral-300 transition-colors uppercase tracking-widest"
               >
-                Back
+                ← العودة
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="flex flex-col gap-5">
               {tab === 'register' && (
                 <div>
-                  <label className="field-label">Display Name</label>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                    الاسم <span className="text-orange-500">*</span>
+                  </label>
                   <input
-                    className="field-input"
+                    className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all font-mono text-sm"
                     value={displayName}
                     onChange={e => setDisplayName(e.target.value)}
-                    placeholder="e.g. Alex Chen"
+                    placeholder="e.g. Ahmed Ali"
                   />
                 </div>
               )}
+
               <div>
-                <label className="field-label">Email</label>
+                <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                  البريد الإلكتروني <span className="text-orange-500">*</span>
+                </label>
                 <input
                   type="email"
-                  className="field-input"
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all font-mono text-sm"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  placeholder="you@example.com"
+                  placeholder="email@domain.com"
+                  dir="ltr"
                 />
+                <p className="text-[10px] text-neutral-600 mt-1.5 font-mono">
+                  System credentials sent to this address
+                </p>
               </div>
+
               <div>
-                <label className="field-label">Password</label>
+                <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                  كلمة المرور <span className="text-orange-500">*</span>
+                </label>
                 <input
                   type="password"
-                  className="field-input"
+                  className="w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all font-mono text-sm"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder="••••••••"
                   onKeyDown={e => e.key === 'Enter' && (tab === 'login' ? handleLogin() : handleRegister())}
+                  dir="ltr"
                 />
               </div>
 
-              {error && <div className="error-box">{error}</div>}
+              {error && (
+                <div className="bg-red-900/20 border border-red-800/50 rounded-md px-4 py-3 text-red-400 text-sm animate-fade-in">
+                  {error}
+                </div>
+              )}
 
               <button
-                className="btn btn-primary btn-full"
+                className="w-full bg-neutral-100 hover:bg-white text-black font-bold py-3 rounded-sm transition-all hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2 text-sm disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
                 onClick={tab === 'login' ? handleLogin : handleRegister}
                 disabled={loading}
-                style={{ padding: '14px', fontSize: 15 }}
               >
-                {loading ? '⏳ Please wait…' : tab === 'login' ? 'Sign In →' : 'Create Account →'}
+                {loading ? (
+                  <>جاري التحقق...</>
+                ) : tab === 'login' ? (
+                  <>تسجيل الدخول</>
+                ) : (
+                  <>إنشاء الحساب</>
+                )}
               </button>
 
               <button
-                className="btn btn-ghost btn-full"
+                className="w-full border border-neutral-800 hover:border-neutral-700 text-neutral-400 hover:text-neutral-300 py-3 rounded-sm transition-all text-sm flex items-center justify-center gap-2 disabled:opacity-40"
                 onClick={handleMagicLink}
                 disabled={loading}
               >
-                🔗 Send magic link instead
+                🔗 إرسال رابط الدخول
               </button>
             </div>
           )}

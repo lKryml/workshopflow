@@ -14,21 +14,17 @@ export function XPFloat({ xp, show }: { xp: number; show: boolean }) {
 
   return (
     <div
+      className="fixed z-[9998] pointer-events-none font-mono font-black tabular-nums select-none"
       style={{
-        position: 'fixed',
         top: '40%',
         left: '50%',
         transform: 'translateX(-50%)',
         fontSize: 40,
-        fontWeight: 900,
-        background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
+        background: 'linear-gradient(135deg, #f59e0b, #f97316)',
         WebkitBackgroundClip: 'text',
         WebkitTextFillColor: 'transparent',
         backgroundClip: 'text',
-        zIndex: 9998,
-        animation: 'xp-float-pro 1.8s ease-out forwards',
-        pointerEvents: 'none',
-        fontFamily: 'var(--font-mono)',
+        animation: 'xp-float 1.8s ease-out forwards',
         letterSpacing: '-0.02em',
       }}
     >

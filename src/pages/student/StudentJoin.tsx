@@ -5,6 +5,8 @@ import type { Session, SessionField, Student, Task } from '../../types'
 
 type JoinStep = 'code' | 'register'
 
+const inputCls = 'w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 outline-none transition-all text-sm'
+
 export function StudentJoin({
   onJoined,
   onInstructorPortal,
@@ -40,7 +42,7 @@ export function StudentJoin({
     const { data: sess } = await supabase
       .from('sessions').select('*').eq('join_code', code.toUpperCase().trim()).single()
     if (!sess) {
-      setCodeError('Session not found. Check your code and try again.')
+      setCodeError('لم يتم إيجاد الجلسة. تحقق من الكود وحاول مجددًا.')
       setCodeLoading(false)
       return
     }
@@ -54,7 +56,6 @@ export function StudentJoin({
     setCustomFields(fields || [])
     setCodeLoading(false)
 
-    // Animated transition
     setIsTransitioning(true)
     setTimeout(() => {
       setStep('register')
@@ -88,7 +89,7 @@ export function StudentJoin({
 
     for (const field of customFields) {
       if (field.is_required && !fieldValues[field.field_key]?.trim()) {
-        setRegisterError(`"${field.field_label}" is required.`)
+        setRegisterError(`"${field.field_label}" مطلوب.`)
         return
       }
     }
@@ -114,7 +115,7 @@ export function StudentJoin({
       .single()
 
     if (sErr || !student) {
-      setRegisterError('Could not join session. Please try again.')
+      setRegisterError('تعذّر الانضمام للجلسة. حاول مجددًا.')
       setRegisterLoading(false)
       return
     }
@@ -124,73 +125,36 @@ export function StudentJoin({
   }
 
   return (
-    <div
-      className="bg-base bg-space bg-animated"
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: 24,
-        position: 'relative',
-      }}
-    >
+    <div dir="rtl" className="min-h-screen bg-[#050505] flex items-center justify-center p-6 relative">
+
       {/* Instructor Portal link */}
       <button
         onClick={onInstructorPortal}
-        style={{
-          position: 'absolute',
-          top: 20,
-          right: 24,
-          background: 'none',
-          border: 'none',
-          color: 'var(--text-muted)',
-          fontSize: 13,
-          fontWeight: 600,
-          cursor: 'pointer',
-          transition: 'var(--transition-fast)',
-          padding: '6px 10px',
-          borderRadius: 8,
-        }}
-        onMouseOver={e => (e.currentTarget.style.color = 'var(--text-secondary)')}
-        onMouseOut={e => (e.currentTarget.style.color = 'var(--text-muted)')}
+        className="absolute top-5 left-6 text-[13px] font-semibold text-neutral-600 hover:text-neutral-400 transition-colors px-3 py-1.5 rounded-sm"
       >
-        Instructor Portal →
+        ← بوابة المدرسين
       </button>
 
-      <div style={{ width: '100%', maxWidth: 440 }}>
+      <div className="w-full max-w-[440px]">
+
         {/* Step 1: Code entry */}
         {step === 'code' && (
-          <div style={{
-            opacity: isTransitioning ? 0 : 1,
-            transform: isTransitioning ? 'translateY(-16px)' : 'translateY(0)',
-            transition: 'opacity 0.3s ease, transform 0.3s ease',
-            animation: isTransitioning ? undefined : 'slide-in-up 0.4s cubic-bezier(0.34,1.56,0.64,1)',
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: 40 }}>
-              <div style={{
-                fontSize: 56,
-                marginBottom: 16,
-                textShadow: '0 0 40px rgba(124,58,237,0.6)',
-                display: 'block',
-              }}>⚡</div>
-              <h1 className="gradient-text" style={{
-                margin: '0 0 10px',
-                fontSize: 'clamp(2.2rem,5vw,3rem)',
-                fontWeight: 900,
-                letterSpacing: '-0.02em',
-                lineHeight: 1.1,
-              }}>WorkshopFlow</h1>
-              <p style={{
-                color: 'var(--text-secondary)',
-                margin: 0,
-                fontSize: 15,
-              }}>Enter your join code to get started</p>
+          <div
+            className="transition-all duration-300"
+            style={{
+              opacity: isTransitioning ? 0 : 1,
+              transform: isTransitioning ? 'translateY(-16px)' : 'translateY(0)',
+            }}
+          >
+            <div className="text-center mb-10">
+              <div className="text-5xl mb-4 block" style={{ textShadow: '0 0 40px rgba(249,115,22,0.5)' }}>⚡</div>
+              <h1 className="text-4xl font-black text-white tracking-tight mb-2">WorkshopFlow</h1>
+              <p className="text-neutral-500 text-sm">أدخل كود الانضمام للبدء</p>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div className="flex flex-col gap-3">
               <input
-                className="code-input"
+                className="code-input w-full bg-neutral-900 border border-neutral-800 rounded-md px-4 py-4 text-center outline-none focus:border-orange-500 focus:ring-1 focus:ring-orange-500/20 transition-all"
                 value={code}
                 onChange={e => { setCode(e.target.value.toUpperCase()); setCodeError('') }}
                 onKeyDown={e => e.key === 'Enter' && handleCodeSubmit()}
@@ -199,15 +163,18 @@ export function StudentJoin({
                 autoFocus
               />
 
-              {codeError && <div className="error-box">{codeError}</div>}
+              {codeError && (
+                <div className="bg-red-900/20 border border-red-800/40 rounded-md px-3 py-2 text-red-400 text-xs">
+                  {codeError}
+                </div>
+              )}
 
               <button
-                className="btn btn-primary btn-full"
                 onClick={handleCodeSubmit}
                 disabled={codeLoading || !code.trim()}
-                style={{ padding: '14px', fontSize: 16, marginTop: 4 }}
+                className="w-full bg-neutral-100 hover:bg-white text-black font-bold py-3.5 rounded-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm disabled:opacity-40 disabled:cursor-not-allowed mt-1"
               >
-                {codeLoading ? '⏳ Checking…' : 'Continue →'}
+                {codeLoading ? '⏳ جارٍ التحقق...' : 'متابعة ←'}
               </button>
             </div>
           </div>
@@ -215,42 +182,52 @@ export function StudentJoin({
 
         {/* Step 2: Character creation */}
         {step === 'register' && (
-          <div style={{
-            opacity: isTransitioning ? 0 : 1,
-            transform: isTransitioning ? 'translateY(16px)' : 'translateY(0)',
-            transition: 'opacity 0.25s ease, transform 0.25s ease',
-            animation: isTransitioning ? undefined : 'slide-in-up 0.35s cubic-bezier(0.34,1.56,0.64,1)',
-          }}>
-            <div style={{ textAlign: 'center', marginBottom: 24 }}>
-              <div style={{ fontSize: 28, marginBottom: 6 }}>👋 Joining:</div>
-              <h2 className="gradient-text" style={{
-                margin: 0, fontSize: 22, fontWeight: 800,
-              }}>{foundSession?.title}</h2>
+          <div
+            className="transition-all duration-300"
+            style={{
+              opacity: isTransitioning ? 0 : 1,
+              transform: isTransitioning ? 'translateY(16px)' : 'translateY(0)',
+            }}
+          >
+            <div className="text-center mb-6">
+              <div className="text-2xl mb-1">👋 انضمام إلى:</div>
+              <h2 className="text-xl font-bold text-orange-400">{foundSession?.title}</h2>
             </div>
 
-            <div className="glass glass-raised" style={{ padding: 24, display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl p-6 flex flex-col gap-5">
+
               {/* Name */}
               <div>
-                <label className="field-label">Your Name *</label>
+                <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                  اسمك <span className="text-orange-500">*</span>
+                </label>
                 <input
-                  className="field-input"
+                  className={inputCls}
                   value={name}
                   onChange={e => setName(e.target.value)}
-                  placeholder="e.g. Sarah"
+                  placeholder="مثال: سارة"
                   autoFocus
                 />
               </div>
 
               {/* Avatar */}
               <div>
-                <label className="field-label">Pick Your Avatar</label>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                  اختر صورتك
+                </label>
+                <div className="flex flex-wrap gap-1.5">
                   {AVATARS.map(a => (
                     <button
                       key={a}
-                      className={`avatar-btn${a === avatar ? ' selected' : ''}`}
                       onClick={() => setAvatar(a)}
-                    >{a}</button>
+                      className={`w-10 h-10 text-xl rounded-lg transition-all ${
+                        a === avatar
+                          ? 'bg-orange-500/15 border border-orange-500/50 scale-110'
+                          : 'hover:bg-neutral-800 border border-transparent'
+                      }`}
+                    >
+                      {a}
+                    </button>
                   ))}
                 </div>
               </div>
@@ -258,20 +235,22 @@ export function StudentJoin({
               {/* Required custom fields */}
               {customFields.filter(f => f.is_required).map(field => (
                 <div key={field.id}>
-                  <label className="field-label">{field.field_label} *</label>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                    {field.field_label} <span className="text-orange-500">*</span>
+                  </label>
                   {field.field_type === 'select' ? (
                     <select
-                      className="field-input"
+                      className={inputCls}
                       value={fieldValues[field.field_key] || ''}
                       onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
                     >
-                      <option value="">Select…</option>
+                      <option value="">اختر...</option>
                       {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
                   ) : (
                     <input
                       type={field.field_type === 'url' ? 'url' : 'text'}
-                      className="field-input"
+                      className={inputCls}
                       value={fieldValues[field.field_key] || ''}
                       onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
                       placeholder={field.field_label}
@@ -282,26 +261,25 @@ export function StudentJoin({
 
               {/* Optional contact info toggle */}
               <button
-                className="btn btn-ghost btn-full btn-sm"
                 onClick={() => setShowContact(v => !v)}
-                style={{ justifyContent: 'flex-start' }}
+                className="text-right text-xs font-mono text-neutral-600 hover:text-neutral-400 transition-colors uppercase tracking-wider"
               >
-                {showContact ? '▾' : '▸'} {showContact ? 'Hide' : 'Add'} contact info (optional)
+                {showContact ? '▾ إخفاء' : '▸ إضافة'} معلومات التواصل (اختياري)
               </button>
 
               {showContact && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 14, animation: 'slide-in-up 0.25s ease' }}>
+                <div className="flex flex-col gap-4 animate-slide-up">
                   <div>
-                    <label className="field-label">Email</label>
-                    <input type="email" className="field-input" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
+                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">البريد الإلكتروني</label>
+                    <input type="email" className={inputCls} value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
                   </div>
                   <div>
-                    <label className="field-label">GitHub Username</label>
-                    <input className="field-input" value={github} onChange={e => setGithub(e.target.value)} placeholder="your-handle" />
+                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">اسم المستخدم على GitHub</label>
+                    <input className={inputCls} value={github} onChange={e => setGithub(e.target.value)} placeholder="your-handle" />
                   </div>
                   <div>
-                    <label className="field-label">Phone</label>
-                    <input type="tel" className="field-input" value={phone} onChange={e => setPhone(e.target.value)} placeholder="+1 555 000 0000" />
+                    <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">رقم الهاتف</label>
+                    <input type="tel" className={inputCls} value={phone} onChange={e => setPhone(e.target.value)} placeholder="+966 5X XXX XXXX" />
                   </div>
                 </div>
               )}
@@ -309,20 +287,22 @@ export function StudentJoin({
               {/* Optional custom fields */}
               {customFields.filter(f => !f.is_required).map(field => (
                 <div key={field.id}>
-                  <label className="field-label">{field.field_label} (optional)</label>
+                  <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
+                    {field.field_label} (اختياري)
+                  </label>
                   {field.field_type === 'select' ? (
                     <select
-                      className="field-input"
+                      className={inputCls}
                       value={fieldValues[field.field_key] || ''}
                       onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
                     >
-                      <option value="">Select…</option>
+                      <option value="">اختر...</option>
                       {field.options.map(opt => <option key={opt} value={opt}>{opt}</option>)}
                     </select>
                   ) : (
                     <input
                       type={field.field_type === 'url' ? 'url' : 'text'}
-                      className="field-input"
+                      className={inputCls}
                       value={fieldValues[field.field_key] || ''}
                       onChange={e => setFieldValues(p => ({ ...p, [field.field_key]: e.target.value }))}
                       placeholder={field.field_label}
@@ -331,22 +311,25 @@ export function StudentJoin({
                 </div>
               ))}
 
-              {registerError && <div className="error-box">{registerError}</div>}
+              {registerError && (
+                <div className="bg-red-900/20 border border-red-800/40 rounded-md px-3 py-2 text-red-400 text-xs">
+                  {registerError}
+                </div>
+              )}
 
               <button
-                className="btn btn-primary btn-full"
                 onClick={handleRegister}
                 disabled={registerLoading || !name.trim()}
-                style={{ padding: '14px', fontSize: 16 }}
+                className="w-full bg-orange-600 hover:bg-orange-500 text-white font-bold py-3.5 rounded-sm transition-all hover:-translate-y-0.5 active:translate-y-0 text-sm disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(234,88,12,0.25)]"
               >
-                {registerLoading ? '⏳ Joining…' : `${avatar} Enter Workshop`}
+                {registerLoading ? '⏳ جارٍ الانضمام...' : `${avatar} ادخل الورشة`}
               </button>
 
               <button
-                className="btn btn-ghost btn-full btn-sm"
                 onClick={handleReset}
+                className="w-full border border-neutral-800 hover:border-neutral-700 text-neutral-500 hover:text-neutral-400 text-sm px-4 py-2 rounded-sm transition-colors"
               >
-                ← Try a different code
+                ← جرّب كودًا آخر
               </button>
             </div>
           </div>

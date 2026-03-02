@@ -17,29 +17,29 @@ function ResourceItem({ resource }: { resource: Resource }) {
     : null
 
   return (
-    <div style={{ marginBottom: 14 }}>
-      <div style={{ fontWeight: 600, fontSize: 14, marginBottom: 4 }}>{resource.title}</div>
+    <div className="mb-4">
+      <div className="font-semibold text-sm text-neutral-200 mb-1">{resource.title}</div>
       {resource.description && (
-        <div style={{ color: 'var(--text-muted)', fontSize: 12, marginBottom: 6 }}>{resource.description}</div>
+        <div className="text-neutral-600 text-xs mb-2">{resource.description}</div>
       )}
       {resource.resource_type === 'link' && resource.url && (
         <a href={resource.url} target="_blank" rel="noopener noreferrer"
-          style={{ color: '#60a5fa', fontSize: 13, wordBreak: 'break-all' }}>
-          🔗 Open Link
+          className="text-orange-400 hover:text-orange-300 text-xs transition-colors">
+          🔗 فتح الرابط
         </a>
       )}
       {resource.resource_type === 'file' && resource.file_path && (
         <a href={resource.file_path} target="_blank" rel="noopener noreferrer"
-          style={{ color: 'var(--brand-light)', fontSize: 13 }}>
-          📄 Download File
+          className="text-orange-400 hover:text-orange-300 text-xs transition-colors">
+          📄 تحميل الملف
         </a>
       )}
       {embedUrl && (
-        <div style={{ position: 'relative', paddingTop: '56.25%', borderRadius: 8, overflow: 'hidden', marginTop: 6 }}>
+        <div className="relative mt-2 rounded-lg overflow-hidden" style={{ paddingTop: '56.25%' }}>
           <iframe
             src={embedUrl}
             title={resource.title}
-            style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', border: 'none' }}
+            className="absolute top-0 left-0 w-full h-full border-0"
             allowFullScreen
           />
         </div>
@@ -113,7 +113,7 @@ export function StudentView({
   const sessionResources = resources.filter(r => r.task_id === null)
 
   return (
-    <div className="bg-base bg-space" style={{ minHeight: '100vh' }}>
+    <div dir="rtl" className="min-h-screen bg-[#050505]">
       <ConnectionStatus state={isConnected ? 'connected' : 'reconnecting'} />
       <Confetti trigger={showConfetti} />
       <XPFloat xp={lastXP} show={showXP} />
@@ -122,94 +122,105 @@ export function StudentView({
 
       {/* Stuck Modal */}
       {stuckTaskId && (
-        <div className="modal-overlay">
-          <div className="modal-panel">
-            <div className="glass glass-raised" style={{ padding: 28 }}>
-              <h3 style={{ margin: '0 0 8px', color: '#fca5a5', fontSize: 18 }}>🆘 Ask for help</h3>
-              <p style={{ color: 'var(--text-secondary)', fontSize: 14, margin: '0 0 16px' }}>
-                Tell your instructor what went wrong (optional):
-              </p>
-              <textarea
-                value={stuckNote}
-                onChange={e => setStuckNote(e.target.value)}
-                placeholder="e.g. permission denied error…"
-                className="field-input"
-                style={{ height: 80, resize: 'none', marginBottom: 14 }}
-              />
-              <div style={{ display: 'flex', gap: 10 }}>
-                <button className="btn btn-danger btn-full" onClick={handleStuckSubmit} style={{ padding: '12px' }}>
-                  Send Help Request
-                </button>
-                <button
-                  className="btn btn-ghost"
-                  onClick={() => { setStuckTaskId(null); setStuckNote('') }}
-                  style={{ padding: '12px 16px' }}
-                >
-                  Cancel
-                </button>
-              </div>
+        <div
+          className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-6 animate-fade-in"
+          onClick={() => { setStuckTaskId(null); setStuckNote('') }}
+        >
+          <div
+            className="w-full max-w-md bg-[#0a0a0a] border border-neutral-800 rounded-xl p-7 relative overflow-hidden animate-slide-up"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-red-500/40 to-transparent" />
+            <h3 className="text-base font-bold text-red-400 mb-1">🆘 طلب المساعدة</h3>
+            <p className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mb-5">Ask for Help</p>
+            <p className="text-neutral-500 text-sm mb-3">أخبر مدرسك بما حدث (اختياري):</p>
+            <textarea
+              value={stuckNote}
+              onChange={e => setStuckNote(e.target.value)}
+              placeholder="مثال: خطأ في الصلاحيات..."
+              className="w-full h-20 bg-neutral-900 border border-neutral-800 rounded-md px-4 py-3 text-neutral-200 placeholder-neutral-600 focus:border-red-500 focus:ring-1 focus:ring-red-500/20 outline-none text-sm resize-none mb-3"
+            />
+            <div className="flex gap-3">
+              <button
+                onClick={handleStuckSubmit}
+                className="flex-1 bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-sm text-sm transition-all"
+              >
+                إرسال طلب المساعدة 🆘
+              </button>
+              <button
+                onClick={() => { setStuckTaskId(null); setStuckNote('') }}
+                className="px-5 py-3 border border-neutral-800 hover:border-neutral-700 text-neutral-400 rounded-sm text-sm transition-colors"
+              >
+                إلغاء
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      <div style={{ padding: 24, maxWidth: 960, margin: '0 auto' }}>
+      <div className="px-5 pb-12 pt-4 max-w-[960px] mx-auto">
+
         {/* Profile Hero */}
-        <div className="glass glass-raised" style={{ padding: '24px 28px', marginBottom: 24 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20, flexWrap: 'wrap' }}>
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                width: 72, height: 72, borderRadius: 20,
-                background: 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                fontSize: 40, boxShadow: '0 0 32px rgba(124,58,237,0.5)',
-              }}>{currentStudent.avatar}</div>
-              <div style={{
-                position: 'absolute', bottom: -4, right: -4, fontSize: 16,
-                background: 'var(--bg-base)', borderRadius: 8, padding: '2px 4px',
-              }}>{level.icon}</div>
+        <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl p-5 mb-5">
+          <div className="flex items-center gap-5 flex-wrap">
+
+            {/* Avatar */}
+            <div className="relative flex-shrink-0">
+              <div className="w-16 h-16 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-4xl">
+                {currentStudent.avatar}
+              </div>
+              <div className="absolute -bottom-1 -left-1 text-sm bg-[#050505] rounded-md px-0.5">
+                {level.icon}
+              </div>
             </div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
-                <h2 style={{ margin: 0, fontSize: 22, fontWeight: 800 }}>{currentStudent.name}</h2>
+
+            {/* Info */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 mb-1 flex-wrap">
+                <h2 className="text-lg font-bold text-neutral-100">{currentStudent.name}</h2>
                 {rank > 0 && (
-                  <span className="badge-amber">#{rank} on leaderboard</span>
+                  <span className="font-mono text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded">
+                    #{rank} في المتصدرين
+                  </span>
                 )}
               </div>
-              <div style={{ color: level.color, fontWeight: 700, fontSize: 14, marginBottom: 10 }}>
+              <div className="text-sm font-semibold mb-3" style={{ color: level.color }}>
                 {level.icon} {level.name}
               </div>
-              <div style={{ display: 'flex', gap: 10, alignItems: 'center', maxWidth: 280 }}>
-                <div className="xp-track" style={{ flex: 1 }}>
+              {/* XP Bar */}
+              <div className="flex items-center gap-3 max-w-[280px]">
+                <div className="flex-1 h-2 bg-neutral-800 rounded-full overflow-hidden">
                   <div
-                    className="xp-fill"
-                    style={{
-                      width: `${progress}%`,
-                      background: `linear-gradient(90deg, ${level.color}, var(--brand-light))`,
-                    }}
+                    className="h-full rounded-full transition-all duration-700 ease-out"
+                    style={{ width: `${progress}%`, backgroundColor: level.color }}
                   />
                 </div>
-                <span style={{ color: 'var(--text-muted)', fontSize: 12, flexShrink: 0 }}>
-                  {needed > 0 ? `${needed} XP to next` : 'MAX LEVEL 🔥'}
+                <span className="text-[11px] font-mono text-neutral-600 flex-shrink-0">
+                  {needed > 0 ? `${needed} XP` : 'MAX 🔥'}
                 </span>
               </div>
             </div>
-            <div style={{ textAlign: 'right' }}>
-              <div className="xp-num" style={{ fontSize: 32 }}>⚡{currentStudent.total_xp.toLocaleString()}</div>
-              <div style={{ color: 'var(--text-muted)', fontSize: 12 }}>Total XP</div>
-              <div style={{ color: 'var(--text-secondary)', fontSize: 14, marginTop: 4 }}>
-                {doneCount}/{displayTasks.length} tasks
+
+            {/* XP + Progress */}
+            <div className="text-left flex-shrink-0">
+              <div className="font-mono font-bold text-amber-400 tabular-nums text-2xl">⚡{currentStudent.total_xp.toLocaleString('ar')}</div>
+              <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mt-0.5">إجمالي النقاط</div>
+              <div className="text-neutral-500 text-xs mt-1">
+                {doneCount}/{displayTasks.length} مهام
               </div>
             </div>
           </div>
         </div>
 
-        <div className="student-grid">
+        {/* Two-column layout */}
+        <div className="grid gap-4" style={{ gridTemplateColumns: '1fr 260px', alignItems: 'start' }}>
+
           {/* Task Checklist */}
           <div>
-            <div className="section-label">
-              {session.session_type === 'course' ? 'Course Tasks' : 'Workshop Tasks'}
+            <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mb-3">
+              {session.session_type === 'course' ? 'مهام الدورة' : 'مهام الورشة'}
             </div>
+
             {sortedTasks.map((task, i) => {
               const isCompleted = !!completions.find(c => c.task_id === task.id && !c.is_stuck)
               const isStuck = !!completions.find(c => c.task_id === task.id && c.is_stuck)
@@ -217,79 +228,85 @@ export function StudentView({
               const isFlashing = justCompleted === task.id
 
               return (
-                <div key={task.id} className="glass-sm" style={{
-                  padding: '20px 22px', marginBottom: 12,
-                  opacity: task.is_locked && !isCompleted ? 0.4 : 1,
-                  transition: 'all 0.3s',
-                  borderColor: isCompleted ? 'rgba(16,185,129,0.3)' : isStuck ? 'rgba(239,68,68,0.3)' : undefined,
-                  background: isCompleted ? 'rgba(16,185,129,0.04)' : undefined,
-                  animation: isFlashing ? 'task-complete-flash 0.6s ease' : isStuck ? 'glow-pulse 1.8s ease-in-out infinite' : undefined,
-                }}>
-                  <div style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-                    <div style={{
-                      width: 38, height: 38, borderRadius: 11, flexShrink: 0, marginTop: 2,
-                      background: isCompleted
-                        ? 'var(--green)'
-                        : task.is_locked ? 'var(--text-muted)' : 'linear-gradient(135deg,#7c3aed,#a855f7)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 16,
-                      boxShadow: isCompleted ? 'var(--glow-green)' : task.is_locked ? 'none' : 'var(--glow-brand)',
-                    }}>
-                      {isCompleted ? '✅' : task.is_locked ? '🔒' : i + 1}
+                <div
+                  key={task.id}
+                  className={`bg-[#0a0a0a] border rounded-xl p-5 mb-3 transition-all ${
+                    isCompleted
+                      ? 'border-green-500/20'
+                      : isStuck
+                      ? 'border-red-500/30 glow-pulse'
+                      : 'border-neutral-800'
+                  } ${task.is_locked && !isCompleted ? 'opacity-40' : ''} ${isFlashing ? 'task-flash' : ''}`}
+                >
+                  <div className="flex gap-4 items-start">
+                    {/* Number / Status circle */}
+                    <div
+                      className="w-9 h-9 rounded-lg flex-shrink-0 flex items-center justify-center text-sm font-bold mt-0.5"
+                      style={{
+                        background: isCompleted
+                          ? 'rgba(34,197,94,0.15)'
+                          : task.is_locked ? 'rgba(40,40,40,0.5)' : 'rgba(249,115,22,0.12)',
+                        color: isCompleted ? '#22c55e' : task.is_locked ? '#404040' : '#f97316',
+                        border: `1px solid ${isCompleted ? 'rgba(34,197,94,0.25)' : task.is_locked ? 'rgba(64,64,64,0.3)' : 'rgba(249,115,22,0.2)'}`,
+                      }}
+                    >
+                      {isCompleted ? '✓' : task.is_locked ? '🔒' : i + 1}
                     </div>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 4 }}>
-                        <h4 style={{
-                          margin: 0, fontSize: 15, fontWeight: 700,
-                          color: isCompleted ? 'var(--green)' : 'var(--text-primary)',
-                          textDecoration: isCompleted ? 'line-through' : 'none',
-                        }}>{task.title}</h4>
-                        <span className="badge-amber" style={{ marginLeft: 8, flexShrink: 0 }}>⚡ {task.xp_reward}</span>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between items-start gap-2 mb-1">
+                        <h4 className={`text-sm font-semibold ${
+                          isCompleted ? 'text-green-400 line-through' : 'text-neutral-200'
+                        }`}>
+                          {task.title}
+                        </h4>
+                        <span className="font-mono text-[10px] font-bold text-amber-500/70 flex-shrink-0">
+                          ⚡{task.xp_reward}
+                        </span>
                       </div>
+
                       {task.description && (
-                        <p style={{ margin: '0 0 10px', color: 'var(--text-muted)', fontSize: 13, lineHeight: 1.5 }}>
-                          {task.description}
-                        </p>
+                        <p className="text-neutral-600 text-xs leading-relaxed mb-3">{task.description}</p>
                       )}
+
                       {!isCompleted && !isStuck && isAvailable && (
-                        <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+                        <div className="flex gap-2 mt-2">
                           <button
-                            className="btn btn-success btn-sm"
                             onClick={() => handleComplete(task)}
-                          >✅ Mark as Done</button>
+                            className="bg-green-500/15 hover:bg-green-500/25 border border-green-500/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"
+                          >
+                            تم الإنجاز ✓
+                          </button>
                           <button
-                            className="btn btn-sm"
                             onClick={() => setStuckTaskId(task.id)}
-                            style={{
-                              background: 'rgba(239,68,68,0.1)',
-                              border: '1px solid rgba(239,68,68,0.3)',
-                              color: '#fca5a5',
-                            }}
-                          >🆘 I'm Stuck</button>
+                            className="bg-red-500/10 hover:bg-red-500/15 border border-red-500/20 text-red-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"
+                          >
+                            عالق 🆘
+                          </button>
                         </div>
                       )}
+
                       {isStuck && (
-                        <div style={{ marginTop: 8 }}>
-                          <div style={{
-                            background: 'rgba(239,68,68,0.1)', borderRadius: 8,
-                            padding: '8px 12px', color: '#fca5a5', fontSize: 13, marginBottom: 8,
-                          }}>
-                            🆘 Help requested — your instructor is on the way!
+                        <div className="mt-2">
+                          <div className="bg-red-500/10 border border-red-500/20 rounded-md px-3 py-2 text-red-400/80 text-xs mb-2">
+                            🆘 طلبت المساعدة — مدرسك في الطريق!
                           </div>
                           <button
-                            className="btn btn-success btn-sm"
                             onClick={() => unmarkStuck(task.id)}
-                          >✓ I'm no longer stuck</button>
+                            className="bg-green-500/15 hover:bg-green-500/25 border border-green-500/25 text-green-400 text-xs font-bold px-3 py-1.5 rounded-sm transition-colors"
+                          >
+                            لست عالقًا بعد الآن ✓
+                          </button>
                         </div>
                       )}
+
                       {isCompleted && (
-                        <div style={{ color: 'var(--green)', fontSize: 13, fontWeight: 600, marginTop: 4 }}>
-                          ✨ Completed!
-                        </div>
+                        <div className="text-green-500/70 text-xs font-semibold mt-1">✨ تم!</div>
                       )}
+
                       {task.is_locked && !isCompleted && (
-                        <div style={{ color: 'var(--text-muted)', fontSize: 13, marginTop: 4 }}>
-                          🔒 Locked — wait for your instructor to unlock this step
+                        <div className="text-neutral-700 text-xs mt-1 font-mono">
+                          🔒 مقفل — انتظر المدرس لفتح هذه الخطوة
                         </div>
                       )}
                     </div>
@@ -300,30 +317,29 @@ export function StudentView({
           </div>
 
           {/* Sidebar */}
-          <div style={{ position: 'sticky', top: 24 }}>
-            {/* Tab pill */}
-            <div className="glass" style={{ display: 'flex', padding: 4, borderRadius: 12, marginBottom: 12 }}>
-              {(['leaderboard', 'resources'] as SidebarTab[]).map(tab => (
+          <div className="sticky top-4">
+
+            {/* Tab switcher */}
+            <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl p-1 flex gap-1 mb-3">
+              {([
+                { key: 'leaderboard', label: '🏆 المتصدرون' },
+                { key: 'resources', label: '📚 المراجع' },
+              ] as { key: SidebarTab; label: string }[]).map(tab => (
                 <button
-                  key={tab}
-                  onClick={() => setSidebarTab(tab)}
-                  className="btn"
-                  style={{
-                    flex: 1,
-                    padding: '8px',
-                    borderRadius: 10,
-                    background: sidebarTab === tab ? 'linear-gradient(135deg,#7c3aed,#a855f7)' : 'transparent',
-                    color: sidebarTab === tab ? '#fff' : 'var(--text-muted)',
-                    fontWeight: 700, fontSize: 13,
-                    transition: 'var(--transition-fast)',
-                  }}
+                  key={tab.key}
+                  onClick={() => setSidebarTab(tab.key)}
+                  className={`flex-1 py-2 text-xs font-bold rounded-lg transition-all ${
+                    sidebarTab === tab.key
+                      ? 'bg-orange-600 text-white'
+                      : 'text-neutral-600 hover:text-neutral-400'
+                  }`}
                 >
-                  {tab === 'leaderboard' ? '🏆 Leaderboard' : '📚 Resources'}
+                  {tab.label}
                 </button>
               ))}
             </div>
 
-            <div className="glass" style={{ padding: 16 }}>
+            <div className="bg-[#0a0a0a] border border-neutral-800 rounded-xl overflow-hidden">
               {sidebarTab === 'leaderboard' ? (
                 <>
                   {displayLeaderboard.slice(0, 8).map((s, i) => {
@@ -331,51 +347,41 @@ export function StudentView({
                     const lvl = getLevel(s.total_xp)
                     const medals = ['🥇', '🥈', '🥉']
                     return (
-                      <div key={s.id} style={{
-                        display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px',
-                        borderRadius: 10, marginBottom: 4, transition: 'all 0.2s',
-                        background: isMe
-                          ? 'rgba(124,58,237,0.12)'
-                          : i === 0 ? 'rgba(245,158,11,0.06)' : 'transparent',
-                        border: isMe ? '1px solid rgba(124,58,237,0.3)' : '1px solid transparent',
-                      }}>
-                        <span style={{ fontSize: 14, width: 20, textAlign: 'center' }}>
-                          {medals[i] || `${i + 1}`}
-                        </span>
-                        <span style={{ fontSize: 18 }}>{s.avatar}</span>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontWeight: isMe ? 800 : 600, fontSize: 13,
-                            color: isMe ? 'var(--brand-light)' : 'var(--text-primary)',
-                            overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
-                          }}>{s.name}{isMe ? ' (you)' : ''}</div>
-                          <div style={{ fontSize: 10, color: lvl.color }}>{lvl.icon} {lvl.name}</div>
+                      <div
+                        key={s.id}
+                        className={`flex items-center gap-2.5 px-4 py-2.5 border-b border-neutral-900 last:border-0 transition-colors ${
+                          isMe ? 'bg-orange-500/5' : i === 0 ? 'bg-amber-500/4' : ''
+                        }`}
+                      >
+                        <span className="text-xs w-4 text-center flex-shrink-0">{medals[i] ?? `${i + 1}`}</span>
+                        <span className="text-base flex-shrink-0">{s.avatar}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className={`text-xs font-semibold truncate ${isMe ? 'text-orange-400' : 'text-neutral-200'}`}>
+                            {s.name}{isMe ? ' (أنت)' : ''}
+                          </div>
+                          <div className="text-[10px]" style={{ color: lvl.color }}>{lvl.icon} {lvl.name}</div>
                         </div>
-                        <div className="xp-num" style={{ fontSize: 13 }}>⚡{s.total_xp}</div>
+                        <span className="font-mono text-[11px] font-bold text-amber-400 flex-shrink-0">⚡{s.total_xp}</span>
                       </div>
                     )
                   })}
                 </>
               ) : (
-                <div>
+                <div className="p-4">
                   {taskResources.length > 0 && (
-                    <div style={{ marginBottom: 16 }}>
-                      <div style={{ color: 'var(--brand-light)', fontSize: 11, fontWeight: 700, marginBottom: 10, letterSpacing: 0.1 }}>
-                        📌 FOR THIS TASK
-                      </div>
+                    <div className="mb-5">
+                      <div className="text-[10px] font-mono text-orange-500/70 uppercase tracking-widest mb-3">📌 للمهمة الحالية</div>
                       {taskResources.map(r => <ResourceItem key={r.id} resource={r} />)}
                     </div>
                   )}
                   {sessionResources.length > 0 && (
                     <div>
-                      <div className="section-label">Session Resources</div>
+                      <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest mb-3">مراجع الجلسة</div>
                       {sessionResources.map(r => <ResourceItem key={r.id} resource={r} />)}
                     </div>
                   )}
                   {taskResources.length === 0 && sessionResources.length === 0 && (
-                    <div style={{ color: 'var(--text-muted)', fontSize: 13, textAlign: 'center', padding: 16 }}>
-                      No resources yet. Your instructor will add them here.
-                    </div>
+                    <p className="text-neutral-700 text-xs text-center py-4 font-mono">لا توجد مراجع بعد</p>
                   )}
                 </div>
               )}

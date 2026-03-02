@@ -36,21 +36,16 @@ export function useInstructorSession(
 
   const broadcastChannelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
 
-  // Bug #4: derive helpQueue correctly — only check is_stuck on the current active task
-  const helpQueue: HelpRequest[] = (() => {
-    const unlockedTasks = tasks.filter(t => !t.is_locked)
-    const lastUnlocked = [...unlockedTasks].sort((a, b) => b.task_order - a.task_order)[0]
-    if (!lastUnlocked) return []
-
-    return completions
-      .filter(c => c.is_stuck && c.task_id === lastUnlocked.id)
-      .map(c => {
-        const studentObj = students.find(s => s.id === c.student_id)
-        if (!studentObj) return null
-        return { student: studentObj, completion: c, taskTitle: lastUnlocked.title }
-      })
-      .filter((h): h is HelpRequest => h !== null)
-  })()
+  // Fixed: show ALL stuck students across all tasks, not just the last unlocked task
+  const helpQueue: HelpRequest[] = completions
+    .filter(c => c.is_stuck)
+    .map(c => {
+      const studentObj = students.find(s => s.id === c.student_id)
+      const taskObj = tasks.find(t => t.id === c.task_id)
+      if (!studentObj || !taskObj) return null
+      return { student: studentObj, completion: c, taskTitle: taskObj.title }
+    })
+    .filter((h): h is HelpRequest => h !== null)
 
   useEffect(() => {
     // Initial load
@@ -149,8 +144,19 @@ export function useInstructorSession(
   }
 }
 
-// Helper used by InstructorDashboard to compute per-student status
-// Bug #4: only check is_stuck for the last unlocked task
+// Helper used by InstructorDashboard to compute per-student status on a specific task
+export function getStudentTaskStatus(
+  studentId: string,
+  taskId: string,
+  completions: Completion[]
+): 'done' | 'stuck' | 'available' | 'locked' {
+  const comp = completions.find(c => c.student_id === studentId && c.task_id === taskId)
+  if (!comp) return 'available'
+  if (comp.is_stuck) return 'stuck'
+  return 'done'
+}
+
+// Keep backward-compat — derives overall student status for the most advanced active task
 export function getStudentStatus(
   student: Student,
   tasks: Task[],
@@ -160,11 +166,9 @@ export function getStudentStatus(
   const lastUnlocked = [...unlockedTasks].sort((a, b) => b.task_order - a.task_order)[0]
   if (!lastUnlocked) return 'idle'
 
-  // Bug #4 fix: only check is_stuck on the current task, not any arbitrary task
-  const stuckOnCurrent = completions.find(
-    c => c.student_id === student.id && c.task_id === lastUnlocked.id && c.is_stuck
-  )
-  if (stuckOnCurrent) return 'stuck'
+  // Check if stuck on ANY task
+  const anyStuck = completions.find(c => c.student_id === student.id && c.is_stuck)
+  if (anyStuck) return 'stuck'
 
   const doneWithCurrent = completions.find(
     c => c.student_id === student.id && c.task_id === lastUnlocked.id && !c.is_stuck
