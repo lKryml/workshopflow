@@ -69,7 +69,7 @@ export function WaitingRoom({
         <div className="text-center mb-8">
           <div className="text-5xl mb-4" style={{ textShadow: '0 0 40px rgba(249,115,22,0.4)' }}>⚡</div>
           <h1 className="text-2xl font-bold text-white mb-1">{session.title}</h1>
-          <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">WorkshopFlow</div>
+          <div className="text-[10px] font-mono text-neutral-600 uppercase tracking-widest">GitHub Workshop</div>
         </div>
 
         {/* Student card */}
