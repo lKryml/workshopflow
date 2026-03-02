@@ -73,7 +73,7 @@ export function InstructorAuth({
           </div>
           <h1 className="text-2xl font-bold text-white mb-1">Instructor Portal</h1>
           <p className="text-[10px] font-mono text-neutral-500 uppercase tracking-widest">
-            WorkshopFlow
+            GitHub Workshop
           </p>
         </div>
 

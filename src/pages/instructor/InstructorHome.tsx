@@ -43,7 +43,7 @@ export function InstructorHome({
       {/* Top bar */}
       <div className="sticky top-0 z-50 bg-[#050505]/90 backdrop-blur-sm border-b border-neutral-900 px-6 h-14 flex items-center gap-3">
         <span className="text-lg">⚡</span>
-        <span className="font-bold text-white text-base flex-1">WorkshopFlow</span>
+        <span className="font-bold text-white text-base flex-1">GitHub Workshop</span>
         {instructorName && (
           <span className="text-[10px] font-mono text-neutral-600 uppercase tracking-wider hidden md:block">
             {instructorName}
@@ -63,7 +63,7 @@ export function InstructorHome({
           <div>
             <div className="flex items-center gap-2 mb-3">
               <span className="px-2 py-1 rounded text-[10px] tracking-wider font-mono font-bold bg-neutral-900 text-orange-500 border border-orange-900/30 uppercase">
-                WorkshopFlow
+                GitHub Workshop
               </span>
             </div>
             <h1 className="text-3xl font-bold text-white tracking-tight mb-1">Your Sessions</h1>

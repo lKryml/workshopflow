@@ -72,7 +72,7 @@ function TaskEditor({ tasks, onChange }: { tasks: TaskInput[]; onChange: (t: Tas
 
 export function CreateSession({ onSessionReady }: { onSessionReady: (session: Session, tasks: Task[]) => void }) {
   const [mode, setMode] = useState<SessionMode>('workshop')
-  const [title, setTitle] = useState('Git Workshop from Scratch')
+  const [title, setTitle] = useState('Git & GitHub Workshop')
   const [description, setDescription] = useState('')
   const [customCode, setCustomCode] = useState('')
   const [workshopTasks, setWorkshopTasks] = useState<TaskInput[]>(DEFAULT_TASKS)
@@ -218,7 +218,7 @@ export function CreateSession({ onSessionReady }: { onSessionReady: (session: Se
               <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">
                 Session Title <span className="text-orange-500">*</span>
               </label>
-              <input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Git Workshop from Scratch" />
+              <input className={inputCls} value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Git & GitHub Workshop" />
             </div>
             <div>
               <label className="block text-xs font-semibold text-neutral-400 mb-2 uppercase tracking-wider">

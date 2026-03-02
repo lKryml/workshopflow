@@ -235,7 +235,7 @@ export function StudentJoin({
       <div className="w-full max-w-[440px]">
         <div className="text-center mb-8">
           <div className="text-5xl mb-4 block" style={{ textShadow: '0 0 40px rgba(249,115,22,0.5)' }}>⚡</div>
-          <h1 className="text-4xl font-black text-white tracking-tight mb-2">WorkshopFlow</h1>
+          <h1 className="text-4xl font-black text-white tracking-tight mb-2">GitHub Workshop</h1>
           <div className="text-orange-400 font-semibold text-base">{foundSession?.title}</div>
           <p className="text-neutral-500 text-sm mt-1">احجز مقعدك في الورشة</p>
         </div>
