@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style C: Electric Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #07111f;
+    --bg2: #0d1d30;
+    --cyan: #00d4ff;
+    --cyan-dim: rgba(0,212,255,0.12);
+    --cyan-glow: rgba(0,212,255,0.25);
+    --white: #f0f6fc;
+    --muted: #8b99ac;
+    --border: rgba(0,212,255,0.15);
+  }
+
+  html, body { width: 100%; height: 100%; overflow: hidden; background: var(--bg); }
+
+  .slide {
+    width: 100vw; height: 100vh;
+    display: flex; flex-direction: column;
+    justify-content: center; align-items: center;
+    padding: clamp(2rem, 5vw, 5rem);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Animated background gradient */
+  .bg-gradient {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 70% 30%, rgba(0,212,255,0.08) 0%, transparent 55%),
+      radial-gradient(ellipse at 20% 80%, rgba(0,100,255,0.05) 0%, transparent 50%);
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+
+  @keyframes drift {
+    from { transform: scale(1); }
+    to { transform: scale(1.05) translate(-1%, 1%); }
+  }
+
+  /* Horizontal lines */
+  .lines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 79px,
+      rgba(0,212,255,0.04) 80px
+    );
+  }
+
+  .content {
+    position: relative; z-index: 1;
+    text-align: center;
+    max-width: 900px;
+  }
+
+  .badge {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    background: var(--cyan-dim);
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.4rem 1rem;
+    margin-bottom: 2rem;
+    opacity: 0;
+    animation: scaleIn 0.5s ease forwards 0.1s;
+  }
+
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); animation: pulse 2s infinite; }
+
+  .badge-text {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(0.65rem, 1vw, 0.78rem);
+    color: var(--cyan);
+    letter-spacing: 0.05em;
+  }
+
+  .title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1.8rem, 4.5vw, 3.8rem);
+    font-weight: 700;
+    color: var(--white);
+    line-height: 1.1;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+    opacity: 0;
+    animation: scaleIn 0.7s ease forwards 0.25s;
+  }
+
+  .title .highlight {
+    color: var(--cyan);
+    text-shadow: 0 0 30px rgba(0,212,255,0.4);
+  }
+
+  .subtitle {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(1rem, 1.8vw, 1.3rem);
+    font-weight: 300;
+    color: var(--muted);
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: scaleIn 0.6s ease forwards 0.4s;
+  }
+
+  .goals {
+    display: flex; gap: 0.75rem;
+    justify-content: center; flex-wrap: wrap;
+    opacity: 0;
+    animation: scaleIn 0.6s ease forwards 0.55s;
+  }
+
+  .goal {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(0.7rem, 1vw, 0.85rem);
+    font-weight: 500;
+    color: var(--white);
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    letter-spacing: 0.02em;
+    transition: border-color 0.2s;
+  }
+
+  .goal:hover { border-color: var(--cyan); color: var(--cyan); }
+
+  .divider {
+    width: min(60%, 400px); height: 1px;
+    background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+    margin: 2.5rem auto;
+    opacity: 0;
+    animation: scaleIn 0.6s ease forwards 0.48s;
+  }
+
+  .style-name {
+    position: absolute; top: 2rem; right: clamp(2rem, 5vw, 5rem);
+    font-family: 'Fira Code', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    z-index: 1;
+    opacity: 0;
+    animation: scaleIn 0.4s ease forwards 0.05s;
+  }
+
+  @keyframes scaleIn {
+    from { opacity: 0; transform: scale(0.96) translateY(10px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; box-shadow: 0 0 6px var(--cyan); }
+    50% { opacity: 0.5; box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="bg-gradient"></div>
+  <div class="lines"></div>
+  <div class="style-name">Style C — Electric Studio</div>
+  <div class="content">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      <span class="badge-text">session 02 · hands-on</span>
+    </div>
+    <h1 class="title">Git Workshop:<br>From Zero to <span class="highlight">Merge Conflicts</span></h1>
+    <p class="subtitle">Second Session – Let's Do It!</p>
+    <div class="divider"></div>
+    <div class="goals">
+      <div class="goal">Practice every command</div>
+      <div class="goal">Handle merge conflicts</div>
+      <div class="goal">Team workflows</div>
+      <div class="goal">Job market ready</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

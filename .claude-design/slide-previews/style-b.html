@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Style B: Swiss Modern</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --bg: #fafaf8;
+    --text: #1a1a1a;
+    --muted: #666;
+    --accent: #d44f00;
+    --accent-light: #fff0e8;
+    --code-bg: #f0efeb;
+    --border: #e0dfd9;
+  }
+
+  html, body { width: 100%; height: 100%; overflow: hidden; }
+
+  .slide {
+    width: 100vw; height: 100vh;
+    background: var(--bg);
+    display: grid;
+    grid-template-columns: 1fr 2.5fr;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Left accent column */
+  .left-col {
+    background: var(--text);
+    display: flex; flex-direction: column;
+    justify-content: space-between;
+    padding: clamp(2rem, 4vw, 3.5rem);
+    position: relative;
+  }
+
+  .left-col::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 35%;
+    background: var(--accent);
+  }
+
+  .session-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(5rem, 14vw, 10rem);
+    color: rgba(255,255,255,0.08);
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+    opacity: 0;
+    animation: fadeIn 0.8s ease forwards 0.1s;
+  }
+
+  .left-label {
+    position: relative; z-index: 1;
+    opacity: 0;
+    animation: fadeIn 0.6s ease forwards 0.6s;
+  }
+
+  .left-label p {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(0.6rem, 0.9vw, 0.75rem);
+    color: rgba(255,255,255,0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 0.25rem;
+  }
+
+  .left-label strong {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.8rem, 1.1vw, 0.95rem);
+    font-weight: 400;
+    color: rgba(255,255,255,0.9);
+  }
+
+  /* Right content column */
+  .right-col {
+    padding: clamp(2.5rem, 5vw, 5rem);
+    display: flex; flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .overline {
+    font-family: 'Fira Code', monospace;
+    font-size: clamp(0.65rem, 0.9vw, 0.78rem);
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    margin-bottom: 1.25rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    opacity: 0;
+    animation: slideRight 0.5s ease forwards 0.2s;
+  }
+
+  .overline::before {
+    content: '';
+    width: 2rem; height: 1px;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(1.8rem, 4vw, 3.2rem);
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    opacity: 0;
+    animation: slideRight 0.6s ease forwards 0.35s;
+  }
+
+  .title em { font-style: italic; color: var(--accent); }
+
+  .subtitle {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.9rem, 1.5vw, 1.15rem);
+    font-weight: 300;
+    color: var(--muted);
+    margin-bottom: 2.5rem;
+    padding-bottom: 2.5rem;
+    border-bottom: 1px solid var(--border);
+    opacity: 0;
+    animation: slideRight 0.6s ease forwards 0.5s;
+  }
+
+  .goals {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0.6rem 2rem;
+    opacity: 0;
+    animation: slideRight 0.6s ease forwards 0.65s;
+  }
+
+  .goal {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(0.75rem, 1.1vw, 0.9rem);
+    color: var(--text);
+    display: flex; align-items: center; gap: 0.6rem;
+  }
+
+  .goal::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .style-name {
+    position: absolute; top: 2rem; right: 2rem;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards 0.05s;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+<div class="slide">
+  <div class="left-col">
+    <div class="session-num">02</div>
+    <div class="left-label">
+      <p>Workshop Series</p>
+      <strong>Git Fundamentals</strong>
+    </div>
+  </div>
+  <div class="right-col">
+    <div class="style-name">Style B — Swiss Modern</div>
+    <div class="overline">Hands-On Session</div>
+    <h1 class="title">Git Workshop:<br>From Zero to<br><em>Merge Conflicts</em></h1>
+    <p class="subtitle">Second Session – Let's Do It!</p>
+    <div class="goals">
+      <div class="goal">Practice every command</div>
+      <div class="goal">Handle merge conflicts</div>
+      <div class="goal">Understand team workflows</div>
+      <div class="goal">Connect to job market</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
