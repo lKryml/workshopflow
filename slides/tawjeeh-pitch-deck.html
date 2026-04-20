@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tawjeeh Pitch Deck</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --panel: #121212;
+      --panel-2: #1a1a1a;
+      --text: #f7f7f7;
+      --muted: #c9c9c9;
+      --line: #2a2a2a;
+      --blue: #4361ee;
+      --cyan: #4cc9f0;
+      --green: #49d17d;
+      --yellow: #f4c95d;
+      --orange: #ff9f1c;
+      --red: #ff5c5c;
+      --title: clamp(1.6rem, 4.8vw, 3.8rem);
+      --h2: clamp(1.2rem, 3vw, 2.2rem);
+      --body: clamp(0.8rem, 1.35vw, 1.08rem);
+      --small: clamp(0.68rem, 1.05vw, 0.86rem);
+      --slide-padding: clamp(1rem, 4vw, 3.6rem);
+      --content-gap: clamp(0.6rem, 1.6vw, 1.25rem);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; overflow-x: hidden; }
+    html { scroll-snap-type: y mandatory; scroll-behavior: smooth; }
+    body { font-family: "Manrope", system-ui, sans-serif; background: var(--bg); color: var(--text); }
+
+    .slide {
+      width: 100vw;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+      scroll-snap-align: start;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: var(--slide-padding);
+      gap: var(--content-gap);
+      background: radial-gradient(circle at 90% 10%, rgba(67, 97, 238, 0.18) 0%, transparent 45%), var(--bg);
+    }
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
+      background-size: 42px 42px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .slide > * { position: relative; z-index: 1; }
+
+    .kicker { font-size: var(--small); letter-spacing: .08em; text-transform: uppercase; color: var(--cyan); }
+    h1 { font-size: var(--title); line-height: 1.08; max-width: min(90vw, 1000px); }
+    h2 { font-size: var(--h2); line-height: 1.15; }
+    p, li, td, th { font-size: var(--body); line-height: 1.42; color: var(--muted); }
+
+    .subtitle { max-width: min(92vw, 920px); color: #dfdfdf; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(0.5rem, 1.1vw, 1rem); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.5rem, 1.1vw, 1rem); }
+    .card {
+      border: 1px solid var(--line);
+      background: linear-gradient(160deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      border-radius: 14px;
+      padding: clamp(0.55rem, 1.1vw, 0.9rem);
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.25rem, 0.7vw, 0.45rem);
+      min-height: 0;
+    }
+    .card h3 { font-size: clamp(0.95rem, 1.9vw, 1.25rem); color: #fff; }
+    .stat { font-size: clamp(1.2rem, 3vw, 2rem); font-weight: 800; color: var(--blue); }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: .28rem .58rem;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      font-size: var(--small);
+      color: #ededed;
+      background: rgba(255,255,255,0.03);
+      width: fit-content;
+    }
+    ul { list-style: none; display: flex; flex-direction: column; gap: clamp(0.32rem, 0.8vw, 0.56rem); }
+    ul li::before { content: "• "; color: var(--cyan); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    th, td { border-bottom: 1px solid var(--line); border-right: 1px solid var(--line); padding: clamp(0.36rem, 0.75vw, 0.55rem); text-align: left; vertical-align: top; }
+    th { color: #fff; font-weight: 600; background: rgba(67,97,238,0.14); }
+    tr:last-child td { border-bottom: none; }
+    tr td:last-child, tr th:last-child { border-right: none; }
+
+    .timeline { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: clamp(0.5rem, 1.2vw, 1rem); }
+    .quarter {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: clamp(0.6rem, 1.15vw, 0.95rem);
+      background: linear-gradient(145deg, rgba(67,97,238,0.2), rgba(67,97,238,0.05));
+      display: flex;
+      flex-direction: column;
+      gap: clamp(0.25rem, 0.7vw, 0.42rem);
+    }
+    .quarter h3 { font-size: clamp(1rem, 2.1vw, 1.35rem); }
+    .quarter .milestone { font-size: var(--small); color: #fff; font-weight: 600; }
+
+    .footnote { font-size: var(--small); color: #b7b7b7; max-width: min(95vw, 1020px); }
+    .highlight { color: #fff; font-weight: 700; }
+    .good { color: var(--green); font-weight: 700; }
+    .warn { color: var(--yellow); font-weight: 700; }
+    .risk { color: var(--red); font-weight: 700; }
+
+    #nav-dots {
+      position: fixed;
+      right: clamp(0.65rem, 1.4vw, 1.2rem);
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 999;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #3a3a3a;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s ease, background 0.2s ease;
+    }
+    .dot.active { background: var(--cyan); transform: scale(1.4); }
+
+    #counter {
+      position: fixed;
+      right: clamp(0.7rem, 1.4vw, 1.2rem);
+      bottom: clamp(0.6rem, 1.2vw, 1rem);
+      font-size: var(--small);
+      color: #9a9a9a;
+      z-index: 999;
+    }
+
+    @media (max-height: 700px) {
+      :root { --slide-padding: clamp(0.75rem, 3vw, 1.8rem); --content-gap: clamp(0.38rem, 1.2vw, 0.8rem); }
+    }
+    @media (max-height: 600px) {
+      :root { --slide-padding: clamp(0.55rem, 2.2vw, 1.3rem); --body: clamp(0.67rem, 1vw, 0.88rem); }
+    }
+    @media (max-height: 500px) {
+      :root { --slide-padding: clamp(0.42rem, 2vw, 0.9rem); --title: clamp(1.05rem, 3.2vw, 1.5rem); }
+    }
+    @media (max-width: 760px) {
+      .grid-2, .grid-3, .timeline { grid-template-columns: 1fr; }
+      #nav-dots { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <nav id="nav-dots" aria-label="Slide navigation"></nav>
+  <div id="counter"></div>
+
+  <section class="slide">
+    <span class="kicker">Tawjeeh • Libya-first talent platform</span>
+    <h1>From <span class="highlight">bad CVs + noisy job posts</span> to trusted private-sector hiring.</h1>
+    <p class="subtitle">Three-stage strategy: <span class="highlight">Seera AI</span> (free CV builder) → <span class="highlight">AI jobboard + matching</span> → full <span class="highlight">ATS + recruitment service</span>.</p>
+    <div class="grid-3">
+      <article class="card"><span class="pill">Stage 1</span><h3>Seera AI</h3><p>Fix existing CVs, generate ATS-ready CVs, teach best practices.</p></article>
+      <article class="card"><span class="pill">Stage 2</span><h3>Tawjeeh Jobboard</h3><p>Persona-based matching for candidates and companies.</p></article>
+      <article class="card"><span class="pill">Stage 3</span><h3>Tawjeeh ATS</h3><p>End-to-end hiring workflow for companies and agencies.</p></article>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Problem</span>
+    <h2>Libya hiring pain today</h2>
+    <div class="grid-2">
+      <article class="card">
+        <span class="stat">Unstructured</span>
+        <ul>
+          <li>Job offers miss salary, role scope, and required skills.</li>
+          <li>Many listings exist only as social posts, hard to search/filter.</li>
+          <li>Candidates waste time applying to unclear opportunities.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <span class="stat">Skills gap</span>
+        <ul>
+          <li>Low awareness of ATS systems and CV screening logic.</li>
+          <li>Frequent CV quality issues: templates, language, formatting.</li>
+          <li>Employers struggle to identify fit quickly and fairly.</li>
+        </ul>
+      </article>
+    </div>
+    <p class="footnote">Context for pitch: unemployment remains high (working estimate: <span class="highlight">~18–19%</span>, verify latest official figure before live presentation). Government is actively pushing transition from public employment dominance toward private-sector growth.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Market insight</span>
+    <h2>Why now</h2>
+    <div class="grid-3">
+      <article class="card"><h3>Public-sector dependency</h3><p>User-provided context: ~80% of workers registered in public institutions, creating pressure on state payrolls.</p></article>
+      <article class="card"><h3>Government momentum</h3><p>Policy efforts focus on reducing unemployment and enabling private hiring channels.</p></article>
+      <article class="card"><h3>Digital gap opportunity</h3><p>Limited ATS knowledge and low-quality CVs create space for immediate, practical education + tools.</p></article>
+    </div>
+    <p class="footnote">Tawjeeh positions itself as execution infrastructure for this transition: candidate readiness + employer quality + measurable matching.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Solution</span>
+    <h2>3-stage product strategy</h2>
+    <div class="timeline">
+      <article class="quarter">
+        <h3>Stage 1: Seera AI</h3>
+        <p class="milestone">Free launch wedge</p>
+        <ul>
+          <li>Convert bad CVs into ATS-ready format.</li>
+          <li>Generate new CVs + language correction.</li>
+          <li>Teach CV/ATS basics while collecting candidate profiles.</li>
+        </ul>
+      </article>
+      <article class="quarter">
+        <h3>Stage 2: Jobboard AI</h3>
+        <p class="milestone">Core monetization</p>
+        <ul>
+          <li>Build candidate persona from CV + cover letter + questionnaire.</li>
+          <li>Analyze job post + employer questionnaire + company vision.</li>
+          <li>Return transparent matching score to both sides.</li>
+        </ul>
+      </article>
+      <article class="quarter">
+        <h3>Stage 3: ATS + Agency</h3>
+        <p class="milestone">Scale layer</p>
+        <ul>
+          <li>Full ATS workflow for employers.</li>
+          <li>Recruitment service for talent agencies.</li>
+          <li>Data moat from prior stages improves hiring accuracy.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Business model</span>
+    <h2>Who pays and why</h2>
+    <div class="grid-2">
+      <article class="card">
+        <h3>Candidate side (free/low-friction)</h3>
+        <ul>
+          <li>Seera AI free for launch period to drive adoption.</li>
+          <li>Education-led trust: templates, ATS tips, language quality.</li>
+          <li>Large candidate DB built before heavy monetization.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Company side (credit model)</h3>
+        <ul>
+          <li>Employers buy credits to unlock applicant identities.</li>
+          <li>Before payment: profile shown with blurred personal data.</li>
+          <li>Visible pre-pay signals: match %, skills, persona highlights.</li>
+        </ul>
+      </article>
+    </div>
+    <p class="footnote">Outcome: candidate growth is protected, while company-side willingness to pay tracks hiring urgency and quality.</p>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">SWOT</span>
+    <h2>Tawjeeh strategic position</h2>
+    <table>
+      <thead>
+        <tr><th>Strengths</th><th>Weaknesses</th><th>Opportunities</th><th>Threats</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="good">Local-first insight, Arabic/English CV improvement, integrated data loop across 3 stages.</td>
+          <td class="warn">Early-stage brand trust, limited initial datasets, need strong company onboarding.</td>
+          <td class="good">Government push to private employment, digitization gap, first-mover ATS education in Libya.</td>
+          <td class="risk">Social-platform incumbency, low switching cost, macro instability affecting hiring demand.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Competitor analysis</span>
+    <h2>Where we win</h2>
+    <table>
+      <thead>
+        <tr><th>Player</th><th>Current behavior</th><th>Gap</th><th>Tawjeeh advantage</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>LibyanJobs</td>
+          <td>Traditional listing board model.</td>
+          <td>Limited deep candidate scoring + CV transformation.</td>
+          <td>AI persona matching + Seera AI funnel before application stage.</td>
+        </tr>
+        <tr>
+          <td>EJAD</td>
+          <td>Job visibility and career opportunities.</td>
+          <td>No full 3-stage progression from education to ATS ecosystem.</td>
+          <td>Education + matching + ATS roadmap in one operating system.</td>
+        </tr>
+        <tr>
+          <td>Ziad Jobs (Facebook)</td>
+          <td>High reach via social feed posts.</td>
+          <td>Unstructured posts, low data quality, weak filtering.</td>
+          <td>Structured job schema, measured matching score, paid reveal flow.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Execution story</span>
+    <h2>3-quarter launch infographic (Q2 → Q4)</h2>
+    <div class="timeline">
+      <article class="quarter">
+        <h3>Q2</h3>
+        <p class="milestone">Seera AI go-live</p>
+        <ul>
+          <li>Launch CV builder + CV conversion.</li>
+          <li>Acquire first 8,000 candidates.</li>
+          <li>Run ATS awareness campaigns with universities.</li>
+        </ul>
+      </article>
+      <article class="quarter">
+        <h3>Q3</h3>
+        <p class="milestone">Jobboard beta</p>
+        <ul>
+          <li>Onboard first 120 companies.</li>
+          <li>Release persona + job matching score.</li>
+          <li>Start paid credit pilots for candidate unlocks.</li>
+        </ul>
+      </article>
+      <article class="quarter">
+        <h3>Q4</h3>
+        <p class="milestone">Revenue scale</p>
+        <ul>
+          <li>Expand to 350+ active employers.</li>
+          <li>Automate employer quality scoring.</li>
+          <li>Prepare ATS module for enterprise trials.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Financials</span>
+    <h2>Year-1 operating cost estimate (lean setup)</h2>
+    <table>
+      <thead>
+        <tr><th>Category</th><th>Estimate (USD)</th><th>Notes</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Core team (small)</td><td>$84,000</td><td>Founders + 2 engineers + part-time ops (startup salaries).</td></tr>
+        <tr><td>Cloud + infra</td><td>$9,000</td><td>Assumes heavy use of AWS startup credits to reduce cash burn.</td></tr>
+        <tr><td>AI/API usage</td><td>$14,000</td><td>CV processing + matching + QA workflows.</td></tr>
+        <tr><td>Marketing + partnerships</td><td>$18,000</td><td>University/community campaigns, digital acquisition.</td></tr>
+        <tr><td>Legal + admin + contingency</td><td>$15,000</td><td>Compliance, accounting, unexpected costs.</td></tr>
+        <tr><td><strong>Total Year-1</strong></td><td><strong>$140,000</strong></td><td>Lean model aimed at rapid PMF validation.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Revenue model</span>
+    <h2>5-year revenue projection (USD)</h2>
+    <table>
+      <thead>
+        <tr><th>Year</th><th>Revenue</th><th>Primary drivers</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Y1</td><td>$70,000</td><td>Credit pilots + early employer packages.</td></tr>
+        <tr><td>Y2</td><td>$280,000</td><td>Jobboard scale + recurring company credit spend.</td></tr>
+        <tr><td>Y3</td><td>$650,000</td><td>National expansion + premium analytics.</td></tr>
+        <tr><td>Y4</td><td>$1,300,000</td><td>ATS subscriptions + agency recruitment revenue.</td></tr>
+        <tr><td>Y5</td><td>$2,100,000</td><td>Mature ATS + enterprise contracts + services.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Profitability indicators</span>
+    <h2>Investor-facing metrics (base-case scenario)</h2>
+    <div class="grid-3">
+      <article class="card"><h3>Break-even point</h3><p>Expected in <span class="highlight">month 27</span> (mid Y3).</p></article>
+      <article class="card"><h3>Payback period</h3><p>Approx. <span class="highlight">3.4 years</span> from initial capital deployment.</p></article>
+      <article class="card"><h3>IRR</h3><p>Estimated <span class="highlight">31%</span> over 5 years.</p></article>
+      <article class="card"><h3>ROI</h3><p>Estimated <span class="highlight">230%</span> by end of Y5.</p></article>
+      <article class="card"><h3>NPV</h3><p>Estimated <span class="highlight">$620,000</span> (discount rate 18%).</p></article>
+      <article class="card"><h3>Average net profit</h3><p>~<span class="highlight">$247,000/year</span> across Y3–Y5.</p></article>
+    </div>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Investment ask</span>
+    <h2>Capital required and offered stake</h2>
+    <div class="grid-2">
+      <article class="card">
+        <h3>Investment required</h3>
+        <p class="stat">$200,000</p>
+        <ul>
+          <li>Covers 18 months runway to reach jobboard scale and ATS pilot readiness.</li>
+          <li>Primary use: product execution + company acquisition + operations.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h3>Ownership offer</h3>
+        <p class="stat">15%</p>
+        <ul>
+          <li>Implied pre-money valuation: <span class="highlight">$1.13M</span>.</li>
+          <li>Alternative financing option: profit-share structure for non-equity partners.</li>
+        </ul>
+      </article>
+    </div>
+    <table>
+      <thead><tr><th>Investment category</th><th>Allocation</th></tr></thead>
+      <tbody>
+        <tr><td>Product & engineering</td><td>45%</td></tr>
+        <tr><td>Growth & employer acquisition</td><td>25%</td></tr>
+        <tr><td>Cloud/AI infrastructure</td><td>15%</td></tr>
+        <tr><td>Operations, legal, compliance</td><td>10%</td></tr>
+        <tr><td>Reserve / contingency</td><td>5%</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="slide">
+    <span class="kicker">Closing</span>
+    <h2>Tawjeeh builds Libya’s bridge from job search chaos to measurable hiring quality.</h2>
+    <div class="grid-2">
+      <article class="card"><h3>Impact</h3><p>Better candidate readiness, faster private-sector hiring, stronger economic mobility.</p></article>
+      <article class="card"><h3>Ask</h3><p>Strategic capital + hiring partners to scale Seera AI and activate the jobboard credit engine.</p></article>
+    </div>
+    <p class="footnote">All financial figures are planning estimates for pitch narrative and should be adjusted during due diligence with verified market and accounting inputs.</p>
+  </section>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const nav = document.getElementById('nav-dots');
+    const counter = document.getElementById('counter');
+
+    slides.forEach((_, index) => {
+      const dot = document.createElement('button');
+      dot.className = 'dot';
+      dot.type = 'button';
+      dot.setAttribute('aria-label', `Go to slide ${index + 1}`);
+      dot.addEventListener('click', () => slides[index].scrollIntoView({ behavior: 'smooth' }));
+      nav.appendChild(dot);
+    });
+
+    const dots = Array.from(document.querySelectorAll('.dot'));
+    const setActive = () => {
+      const mid = window.innerHeight / 2;
+      let activeIndex = 0;
+      slides.forEach((slide, i) => {
+        const rect = slide.getBoundingClientRect();
+        if (rect.top <= mid && rect.bottom >= mid) activeIndex = i;
+      });
+      dots.forEach((dot, i) => dot.classList.toggle('active', i === activeIndex));
+      counter.textContent = `${activeIndex + 1} / ${slides.length}`;
+    };
+
+    document.addEventListener('scroll', setActive, { passive: true });
+    document.addEventListener('keydown', (event) => {
+      const current = dots.findIndex(dot => dot.classList.contains('active'));
+      if (event.key === 'ArrowDown' || event.key === 'PageDown') {
+        event.preventDefault();
+        const next = Math.min(slides.length - 1, current + 1);
+        slides[next].scrollIntoView({ behavior: 'smooth' });
+      }
+      if (event.key === 'ArrowUp' || event.key === 'PageUp') {
+        event.preventDefault();
+        const prev = Math.max(0, current - 1);
+        slides[prev].scrollIntoView({ behavior: 'smooth' });
+      }
+    });
+
+    setActive();
+  </script>
+</body>
+</html>
